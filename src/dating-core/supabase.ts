@@ -234,7 +234,7 @@ export async function updateInvisibleStatus(tableName: string, userId: number, u
   }
 }
 
-export async function fetchGlobalUnlock(tableName: string): Promise<number> {
+export async function fetchGlobalUnlock(_tableName: string): Promise<number> {
   if (!hasValidKey) return 0
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/lmn_users_global_unlock?select=unlocked_at&order=unlocked_at.desc&limit=1`, { headers })
@@ -362,7 +362,7 @@ export async function deleteUser(tableName: string, userId: number): Promise<boo
   }
 }
 
-export async function clearAllUsers(tableName: string): Promise<boolean> {
+export async function clearAllUsers(_tableName: string): Promise<boolean> {
   if (!hasValidKey) return false
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/users?is_admin=eq.false`, { method: 'DELETE', headers })
@@ -373,7 +373,7 @@ export async function clearAllUsers(tableName: string): Promise<boolean> {
   }
 }
 
-export async function updateUnlockCount(tableName: string, userId: number, delta: number): Promise<boolean> {
+export async function updateUnlockCount(_tableName: string, userId: number, delta: number): Promise<boolean> {
   if (!hasValidKey) return false
   try {
     const userRes = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?id=eq.${userId}&select=unlock_count`, { headers })
@@ -392,7 +392,7 @@ export async function updateUnlockCount(tableName: string, userId: number, delta
   }
 }
 
-export async function setUnlockCount(tableName: string, userId: number, value: number): Promise<boolean> {
+export async function setUnlockCount(_tableName: string, userId: number, value: number): Promise<boolean> {
   if (!hasValidKey) return false
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?id=eq.${userId}`, {
