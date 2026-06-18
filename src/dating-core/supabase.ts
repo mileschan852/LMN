@@ -376,11 +376,11 @@ export async function clearAllUsers(_tableName: string): Promise<boolean> {
 export async function updateUnlockCount(_tableName: string, userId: number, delta: number): Promise<boolean> {
   if (!hasValidKey) return false
   try {
-    const userRes = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?id=eq.${userId}&select=unlock_count`, { headers })
+    const userRes = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${userId}&select=unlock_count`, { headers })
     if (!userRes.ok) return false
     const data = await userRes.json() as { unlock_count: number }[]
     const current = data[0]?.unlock_count || 0
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?id=eq.${userId}`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${userId}`, {
       method: 'PATCH',
       headers,
       body: JSON.stringify({ unlock_count: Math.max(0, current + delta) }),
@@ -395,7 +395,7 @@ export async function updateUnlockCount(_tableName: string, userId: number, delt
 export async function setUnlockCount(_tableName: string, userId: number, value: number): Promise<boolean> {
   if (!hasValidKey) return false
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?id=eq.${userId}`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${userId}`, {
       method: 'PATCH',
       headers,
       body: JSON.stringify({ unlock_count: value }),
