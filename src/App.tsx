@@ -603,8 +603,8 @@ function MainScreen({ ownProfile, users, onViewOwnProfile, onViewPhoto, showDbWa
           return (
             <>
               <ProfileGrid
-                users={sortedUsers.filter((u) => u.id !== ownProfile.id)}
-                ownProfile={{...ownProfile, isOwn: true}}
+                users={sortedUsers.filter((u) => u.id !== ownProfile.id) as any}
+                ownProfile={{...ownProfile, isOwn: true} as any}
                 unlockedSlots={unlockedSlots}
                 totalRealUsers={totalRealUsers}
                 hasMoreUsers={hasMoreUsers}
