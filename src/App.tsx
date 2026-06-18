@@ -7,7 +7,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import './App.css'
 import logoImg from './assets/lmn-logo.svg'
 import logoAnim from './assets/lmn-logo-animated.mp4'
-import { t, tPref, type Lang, getLangLabel } from './lib/i18n'
+import { t, type Lang, getLangLabel } from './lib/i18n'
 import {
   Grid3X3,
   Users,
@@ -81,7 +81,7 @@ declare global {
 // Only these Telegram usernames / IDs are admins. Bot owner is always included.
 // Add more here when requested.
 const ADMIN_IDS = [5202742795, 725368127]
-const ADMIN_USERNAMES = ['mileschan852', 'MilesChan852', 'HKMembersOnly', 'hkmembersonly']
+const ADMIN_USERNAMES = ['mileschan852', 'MilesChan852']
 
 
 // ─── Storage ─────────────────────────────────────────────────────────

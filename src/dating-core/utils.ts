@@ -1,4 +1,4 @@
-// Shared utility functions for HKMOD & LMN
+// Utility functions for LMN
 import type { UserProfile } from './types'
 
 export function isAdminUser(

@@ -1,5 +1,4 @@
-// Shared Supabase REST Client for HKMOD & LMN
-// Supports both app schemas in the same users table
+// Supabase REST Client for LMN
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || ''
 const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
@@ -27,7 +26,7 @@ export interface DbUser {
   is_online: boolean
   updated_at: string
   
-  // HKMOD fields
+  // App fields
   position: number | null
   is_side: boolean | null
   preference1: string | null

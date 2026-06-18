@@ -1,4 +1,4 @@
-// Shared Telegram WebApp helpers for HKMOD & LMN
+// Telegram WebApp helpers for LMN
 
 export interface TgWebApp {
   ready: () => void

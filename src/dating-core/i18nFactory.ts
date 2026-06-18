@@ -33,7 +33,7 @@ export function createAppT(
     return mergeDict(lang, overrides)
   }
 
-  // Default preference mapping (HKMOD-style)
+  // Default preference mapping
   const defaultPrefMap: Record<string, string> = {
     Safe: 'safe',
     Raw: 'raw',

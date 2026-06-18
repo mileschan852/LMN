@@ -35,7 +35,7 @@ export interface DbUser {
   meetup_type: string | null
   hide_age: boolean | null
   
-  // HKMOD fields (for compatibility)
+  // Profile fields
   position: number
   is_side: boolean
   preference1: string | null
