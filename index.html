@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="theme-color" content="#0A0A0A" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Let's Meet Now — Dating</title>
+    <script>
+      // Aggressive cache-busting: force reload with timestamp on first load
+      if (!location.search.includes('_cb=')) {
+        location.replace(location.href + (location.search ? '&' : '?') + '_cb=' + Date.now())
+      }
+    </script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Debug: if React crashes, this stays visible -->
+    <div id="debug-fallback" style="position:fixed;bottom:0;left:0;right:0;background:#000;color:#FF6B35;font-family:monospace;font-size:10px;padding:4px;z-index:99999">Booting...</div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
