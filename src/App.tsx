@@ -678,9 +678,10 @@ function OwnProfileScreen({ profile, onSave, onBack, lang, editProfileUnlocked }
     setTimeout(() => setSaved(false), 2000)
   }
 
-  const photos = draft.tgPhotos?.length ? draft.tgPhotos : (draft.tgPhotoUrl?.trim() ? [draft.tgPhotoUrl] : [logoImg])
-  const currentPhoto = photos[photoIndex % photos.length]
-  const hasMultiplePhotos = photos.length > 1
+  const photoList = draft.tgPhotos?.length ? draft.tgPhotos : (draft.tgPhotoUrl?.trim()?.startsWith('http') ? [draft.tgPhotoUrl] : [logoImg])
+  const currentPhoto = photoList[photoIndex % photoList.length]
+  const hasMultiplePhotos = photoList.length > 1
+  const isValidPhoto = currentPhoto?.toString().startsWith('http') || currentPhoto === logoImg
 
   return (
     <div className="view-enter h-full flex flex-col">
@@ -699,13 +700,13 @@ function OwnProfileScreen({ profile, onSave, onBack, lang, editProfileUnlocked }
             <div className="absolute inset-0 flex items-center justify-center z-0">
               <span className="text-2xl font-bold text-[#8E8E93]">{draft.name.charAt(0)}</span>
             </div>
-            {currentPhoto && (
+            {isValidPhoto && (
               <img
                 src={currentPhoto} alt="You"
                 className={`absolute inset-0 w-full h-full object-cover z-10 ${photoLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300 active:opacity-70`}
                 draggable={false} loading="eager" decoding="async"
                 onLoad={() => setPhotoLoaded(true)} onError={() => setPhotoLoaded(false)}
-                onClick={() => hasMultiplePhotos && setPhotoIndex((prev) => (prev + 1) % photos.length)}
+                onClick={() => hasMultiplePhotos && setPhotoIndex((prev) => (prev + 1) % photoList.length)}
               />
             )}
             {hasMultiplePhotos && (
