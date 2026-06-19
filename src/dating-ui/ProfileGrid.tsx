@@ -215,7 +215,7 @@ export function ProfileGrid({
   return (
     <div className="grid grid-cols-5 gap-1.5">
       {/* UNLOCKED AREA: users first, then blanks to fill the row */}
-      {unlockedUsers.map((user, idx) => {
+      {unlockedUsers.map((user) => {
         const isBlank = !!(user as any).isBlank
 
         if (isBlank) {

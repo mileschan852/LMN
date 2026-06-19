@@ -1,5 +1,5 @@
 import {
-  getTg, isInTelegram, getUserId, getTimeAgo, getDistance, formatDist, isUserActive, isPrefLocked, getDefaultLang, isAdminUser, dbToProfile, formatRole, getGridRoleLabel, getFilterColor, createCloudKeys, createStorage, getZodiac, getZodiacEmoji, useRaffleActions,
+  getTg, isInTelegram, getUserId, getTimeAgo, getDistance, formatDist, getDefaultLang, isAdminUser, dbToProfile, getGridRoleLabel, getFilterColor, createCloudKeys, createStorage, getZodiac, getZodiacEmoji, useRaffleActions,
   type UserProfile, type RoleFilterMode, type DbUser, type Raffle,
 } from 'dating-core'
 import { BottomNav, StatsBar, ProfileGrid, TopBar, ProfileView } from 'dating-ui'
@@ -9,21 +9,11 @@ import logoImg from './assets/lmn-logo.svg'
 import logoAnim from './assets/lmn-logo-animated.mp4'
 import { t, type Lang, getLangLabel } from './lib/i18n'
 import {
-  Grid3X3,
-  Users,
-  ArrowLeft,
-  Check,
-  MapPin,
-  X,
-  MessageCircle,
   LocateFixed,
   AlertTriangle,
   Lock,
-  Gift,
-  Wallet,
-  Send,
 } from 'lucide-react'
-import { upsertUser, fetchNearby, setOnlineStatus, fetchGlobalUnlock, hasValidKey, fetchUserUnlockStatus, insertFlyingMessage, fetchFlyingMessages, updateInvisibleStatus, getActiveRaffle, createRaffle, buyRaffleTicket, startRaffleCountdown, drawRaffleWinner, completeRaffle, setRaffleDrawToNextWednesday, ensureFilterUnlock, setGridRowsUnlocked as saveGridRowsUnlocked, setFiltersUnlocked as saveFiltersUnlocked } from './lib/supabase'
+import { upsertUser, fetchNearby, setOnlineStatus, hasValidKey, fetchUserUnlockStatus, insertFlyingMessage, fetchFlyingMessages, updateInvisibleStatus, getActiveRaffle, createRaffle, buyRaffleTicket, startRaffleCountdown, drawRaffleWinner, completeRaffle, setRaffleDrawToNextWednesday, ensureFilterUnlock, setGridRowsUnlocked as saveGridRowsUnlocked, setFiltersUnlocked as saveFiltersUnlocked } from './lib/supabase'
 
 
 // ─── Types ───────────────────────────────────────────────────────────
