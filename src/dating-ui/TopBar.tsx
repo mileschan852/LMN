@@ -1,5 +1,8 @@
 import { RefreshCw } from 'lucide-react'
-import { Raffle, RaffleButton, RaffleStatusDisplay } from './RaffleStatusDisplay'
+import { RaffleStatusDisplay } from './RaffleStatusDisplay'
+import { RaffleButton } from './RaffleButton'
+import type { Raffle } from 'dating-core'
+import type { Lang } from 'dating-core/i18n'
 import { useMemo } from 'react'
 
 interface TopBarProps {
@@ -12,7 +15,7 @@ interface TopBarProps {
   isAdmin: boolean
   onBuyRaffleTicket: () => void
   onStartNextRaffle: () => void
-  lang: string
+  lang: Lang
 
   // Invisible mode
   isInvisible: boolean
