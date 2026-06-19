@@ -1,7 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import '@/dating-core/styles.css'
 import App from './App.tsx'
 
 const fallback = document.getElementById('debug-fallback')
