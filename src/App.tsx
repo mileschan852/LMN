@@ -1815,4 +1815,12 @@ export default function App() {
               })
             }}
             groupChatUrl="https://t.me/LetsMeetNow"
-            referShareUr
+            referShareUrl="https://t.me/share/url?url=https://t.me/LetsMeetNow?startapp&text=Check%20out%20LMN%20-%20Lets%20Meet%20Now!"
+            walletUrl="https://t.me/wallet?startattach=transfer_UQD9Irrhhpj2aAa48W-XaL5q9vPD9Zf5UjXhC7aHcYcSnYo4"
+          />
+        )}
+      </div>
+    </div>
+    </>
+  )
+}
