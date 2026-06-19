@@ -87,7 +87,9 @@ export function lsGetAll(prefix: string): Record<string, string> {
     Object.keys(localStorage).forEach(k => {
       if (k.startsWith(pfx)) {
         const shortKey = k.replace(pfx, '')
-        r[shortKey] = localStorage.getItem(k) || ''
+        // Return full cloud keys (e.g. 'lmn_photo_url') to match CLOUD.photoUrl format
+        const fullKey = shortKey ? `${prefix}_${shortKey}` : shortKey
+        r[fullKey] = localStorage.getItem(k) || ''
       }
     })
   } catch {}
@@ -122,13 +124,15 @@ export function createStorage(config: StorageConfig) {
         if (cloud && uid) {
           Object.entries(cloud).forEach(([k, v]) => {
             const shortKey = k.replace(`${prefix}_${uid}_`, '')
-            result[shortKey] = v
+            const fullKey = shortKey ? `${prefix}_${shortKey}` : shortKey
+            result[fullKey] = v
           })
         }
       } else {
-        for (const key of Object.keys(ls)) {
-          const cloudValue = await this.get(key)
-          if (cloudValue !== null) result[key] = cloudValue
+        for (const fullKey of Object.keys(ls)) {
+          const shortKey = fullKey.replace(`${prefix}_`, '')
+          const cloudValue = await this.get(shortKey)
+          if (cloudValue !== null) result[fullKey] = cloudValue
         }
       }
       return result

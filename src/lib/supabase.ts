@@ -304,23 +304,6 @@ export async function fetchUserUnlockStatus(userId: number): Promise<UnlockStatu
   }
 }
 
-// ─── Update has_real_photo ───────────────────────────────────────────
-
-export async function updateUserRealPhoto(userId: number, hasRealPhoto: boolean): Promise<boolean> {
-  if (!hasValidKey) return false
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/lmn_users?id=eq.${userId}`, {
-      method: 'PATCH',
-      headers: { ...headers, 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ has_real_photo: hasRealPhoto }),
-    })
-    return res.ok
-  } catch (err) {
-    console.error('updateUserRealPhoto failed:', err)
-    return false
-  }
-}
-
 // ─── Update invisible status ─────────────────────────────────────────
 
 export async function setGridRowsUnlocked(userId: number, value: number): Promise<boolean> {

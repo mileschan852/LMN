@@ -1258,12 +1258,19 @@ export default function App() {
   }
 
   const tgUserId = useRef<number | null>(null)
+  const [videoReady, setVideoReady] = useState(false)
 
-  // Splash screen: auto-dismiss after 2.5s
+  // Splash screen: dismiss when video loads or after max 3s
   useEffect(() => {
-    const timer = setTimeout(() => setShowSplash(false), 2500)
-    return () => clearTimeout(timer)
+    const maxWait = setTimeout(() => setShowSplash(false), 3000)
+    return () => clearTimeout(maxWait)
   }, [])
+  useEffect(() => {
+    if (videoReady) {
+      const minDisplay = setTimeout(() => setShowSplash(false), 1800)
+      return () => clearTimeout(minDisplay)
+    }
+  }, [videoReady])
   // ─── Group membership check ───────────────────────────────────────
   useEffect(() => {
     const tg = getTg()
@@ -1740,6 +1747,7 @@ export default function App() {
             loop
             muted
             playsInline
+            onLoadedData={() => setVideoReady(true)}
             className="w-48 h-48 rounded-full object-cover"
           />
           <div className="text-center">
@@ -1957,12 +1965,4 @@ export default function App() {
               })
             }}
             groupChatUrl="https://t.me/LetsMeetNow"
-            referShareUrl="https://t.me/share/url?url=https://t.me/LetsMsetNow_Bot?startapp&text=Check%20out%20LMN%20-%20Let%27s%20Meet%20Now%20Dating!"
-            walletUrl="https://t.me/wallet?startattach=transfer_UQD9Irrhhpj2aAa48W-XaL5q9vPD9Zf5UjXhC7aHcYcSnYo4"
-          />
-        )}
-      </div>
-    </div>
-  </>
-  )
-}
+            referShareUrl="https://t.me/share/url?url=https://t.me/Lets
