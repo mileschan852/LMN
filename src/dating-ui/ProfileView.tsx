@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { X, ArrowLeft, MapPin, MessageCircle } from 'lucide-react'
 import type { Lang } from 'dating-core/i18n'
-import { t, getTimeAgo, formatDist, isUserActive, getZodiac, getZodiacEmoji } from 'dating-core'
+import { t, formatDist, isUserActive, getZodiac, getZodiacEmoji } from 'dating-core'
 
 interface ProfileViewProps {
   user: any
