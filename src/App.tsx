@@ -1055,7 +1055,7 @@ export default function App() {
   const handleClaimChannelFollow = useCallback(async () => {
     if (channelFollowUnlock) return
     // Open the channel
-    const url = 'https://t.me/LetsMsetNow_Bot'
+    const url = 'https://t.me/LetsMeetNowApp'
     try {
       const tg = getTg()
       if (tg?.openTelegramLink) { tg.openTelegramLink(url) }

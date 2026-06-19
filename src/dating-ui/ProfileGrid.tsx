@@ -208,10 +208,14 @@ export function ProfileGrid({
     )
   }
 
+  // Split users: unlocked area gets users + blanks to fill, locked area gets remaining users dimmed
+  const unlockedUsers = displayUsers.slice(0, unlockedSlots)
+  const lockedUsers = displayUsers.slice(unlockedSlots)
+
   return (
     <div className="grid grid-cols-5 gap-1.5">
-      {displayUsers.map((user, idx) => {
-        const isAboveDivider = idx < unlockedSlots
+      {/* UNLOCKED AREA: users first, then blanks to fill the row */}
+      {unlockedUsers.map((user, idx) => {
         const isBlank = !!(user as any).isBlank
 
         if (isBlank) {
@@ -232,46 +236,62 @@ export function ProfileGrid({
         }
 
         return (
-          <React.Fragment key={user.id}>
-            {/* Divider row — tap to unlock +1 row */}
-            {idx === unlockedSlots && unlockedSlots < 100 && (
-              <div
-                className="col-span-full flex items-center justify-center py-2 my-1 cursor-pointer select-none active:opacity-60 transition-opacity rounded-lg bg-gradient-to-r from-[#5AC8FA]/10 to-purple-600/10 border border-[#5AC8FA]/30"
-                onClick={onPromptUnlock}
-              >
-                <span className="text-[10px] text-[#5AC8FA] font-bold mr-2">🔒</span>
-                <span className="text-[10px] text-[#5AC8FA] font-semibold">
-                  {isAdmin ? 'Tap to unlock row (admin)' : 'Tap to unlock — 1000 ⭐'}
-                </span>
-                <span className="text-[9px] text-[#8E8E93] ml-2">
-                  {totalRealUsers > unlockedSlots ? `(${totalRealUsers - unlockedSlots} more)` : ''}
-                </span>
-                <span className="mx-2 text-[10px] text-[#5AC8FA] font-bold">🔒</span>
-              </div>
-            )}
+          <div
+            key={user.id}
+            className="relative aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200"
+            style={{
+              borderColor: user.id === ownProfile.id ? '#5AC8FA' : 'transparent',
+              opacity: matchingIds && !matchingIds.has(user.id) ? 0.25 : 1,
+            }}
+          >
+            <GridTile
+              user={user}
+              onClick={() => (user.isOwn ? onViewOwnProfile() : onViewPhoto(user))}
+              renderBottom={renderTileBottom}
+              renderTopLeft={renderTileTopLeft}
+              tileClassName={tileClassName}
+              logoUrl={logoUrl}
+            />
+          </div>
+        )
+      })}
 
-            <div
-              className="relative aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200"
-              style={{
-                borderColor: user.id === ownProfile.id ? '#5AC8FA' : 'transparent',
-                opacity: !isAboveDivider ? 0.3 : matchingIds && !matchingIds.has(user.id) ? 0.25 : 1,
-                pointerEvents: !isAboveDivider ? 'none' : undefined,
-              }}
-            >
-              <GridTile
-                user={user}
-                onClick={
-                  !isAboveDivider
-                    ? undefined
-                    : () => (user.isOwn ? onViewOwnProfile() : onViewPhoto(user))
-                }
-                renderBottom={renderTileBottom}
-                renderTopLeft={renderTileTopLeft}
-                tileClassName={tileClassName}
-                logoUrl={logoUrl}
-              />
-            </div>
-          </React.Fragment>
+      {/* DIVIDER: always at unlocked rows boundary, regardless of user count */}
+      {unlockedSlots < 100 && (
+        <div
+          className="col-span-full flex items-center justify-center py-2 my-1 cursor-pointer select-none active:opacity-60 transition-opacity rounded-lg bg-gradient-to-r from-[#5AC8FA]/10 to-purple-600/10 border border-[#5AC8FA]/30"
+          onClick={onPromptUnlock}
+        >
+          <span className="text-[10px] text-[#5AC8FA] font-bold mr-2">{'\uD83D\uDD12'}</span>
+          <span className="text-[10px] text-[#5AC8FA] font-semibold">
+            {isAdmin ? 'Tap to unlock row (admin)' : 'Tap to unlock — 1000 \u2B50'}
+          </span>
+          <span className="text-[9px] text-[#8E8E93] ml-2">
+            {totalRealUsers > unlockedSlots ? `(${totalRealUsers - unlockedSlots} more)` : ''}
+          </span>
+          <span className="mx-2 text-[10px] text-[#5AC8FA] font-bold">{'\uD83D\uDD12'}</span>
+        </div>
+      )}
+
+      {/* LOCKED AREA: remaining users dimmed */}
+      {lockedUsers.map((user) => {
+        const isBlank = !!(user as any).isBlank
+        if (isBlank) return null
+
+        return (
+          <div
+            key={user.id}
+            className="relative aspect-square rounded-lg overflow-hidden border-2 border-transparent opacity-30"
+            style={{ pointerEvents: 'none' }}
+          >
+            <GridTile
+              user={user}
+              renderBottom={renderTileBottom}
+              renderTopLeft={renderTileTopLeft}
+              tileClassName={tileClassName}
+              logoUrl={logoUrl}
+            />
+          </div>
         )
       })}
     </div>
