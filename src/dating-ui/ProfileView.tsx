@@ -4,7 +4,7 @@ import type { Lang } from 'dating-core/i18n'
 import { t, getTimeAgo, formatDist, isUserActive, getZodiac, getZodiacEmoji } from 'dating-core'
 
 export interface ProfileViewUser {
-  id: string
+  id: string | number
   name: string
   tgPhotoUrl: string
   tgPhotos?: string[]
@@ -23,18 +23,19 @@ export interface ProfileViewUser {
   isOwn?: boolean
   isInvisible?: boolean
   isOnline?: boolean
+  [key: string]: unknown  // Allow any additional fields from app-specific types
 }
 
 interface ProfileViewProps {
-  user: ProfileViewUser
+  user: any  // App-specific user type - passed through without validation
   lang: Lang
   logoUrl?: string
   // View mode (others or locked own)
   onClose?: () => void
-  onMessage?: (user: ProfileViewUser) => void
-  ownProfile?: ProfileViewUser
+  onMessage?: (user: any) => void
+  ownProfile?: any
   // Edit mode (own, unlocked)
-  onSave?: (updated: ProfileViewUser) => void
+  onSave?: (updated: any) => void
   onBack?: () => void
   editProfileUnlocked?: boolean
 }
