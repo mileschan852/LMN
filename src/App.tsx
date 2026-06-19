@@ -2,7 +2,7 @@ import {
   getTg, isInTelegram, getUserId, getTimeAgo, getDistance, formatDist, isUserActive, isPrefLocked, getDefaultLang, isAdminUser, dbToProfile, formatRole, getGridRoleLabel, getFilterColor, createCloudKeys, createStorage, getZodiac, getZodiacEmoji, useRaffleActions,
   type UserProfile, type RoleFilterMode, type DbUser, type Raffle,
 } from 'dating-core'
-import { RaffleStatusDisplay, RaffleButton, BottomNav, StatsBar, ProfileGrid, TopBar } from 'dating-ui'
+import { BottomNav, StatsBar, ProfileGrid, TopBar } from 'dating-ui'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import './App.css'
 import logoImg from './assets/lmn-logo.svg'
