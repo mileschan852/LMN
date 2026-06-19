@@ -236,7 +236,7 @@ export function ProfileView({
         {displayPhotos.length > 0 ? (
           <>
             <div ref={scrollRef} onScroll={handleScroll} className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
-              {displayPhotos.map((photo, i) => (
+              {displayPhotos.map((_photo: string, i: number) => (
                 <div key={i} className="w-full h-full flex-shrink-0 snap-center flex items-center justify-center relative">
                   {!imgStates[i]?.failed && (
                     <img
@@ -276,7 +276,7 @@ export function ProfileView({
       {/* Dot indicators */}
       {displayPhotos.length > 1 && (
         <div className="flex justify-center gap-1.5 pb-3">
-          {displayPhotos.map((_, i) => (
+          {displayPhotos.map((_p: string, i: number) => (
             <div key={i} className={`h-1.5 rounded-full transition-all duration-200 ${i === activeIdx ? 'w-4 bg-[var(--app-primary)]' : 'w-1.5 bg-[#8E8E93]/40'}`} />
           ))}
         </div>
@@ -314,6 +314,4 @@ function FieldLabel({ label, locked }: { label: string; locked?: boolean }) {
     <span className="text-xs text-[#8E8E93] font-medium uppercase block mb-1.5 flex items-center gap-1">
       {label}
       {locked && <Lock className="w-3 h-3 text-[var(--app-primary)]" />}
-    </span>
-  )
-}
+ 
