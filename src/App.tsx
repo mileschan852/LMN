@@ -451,7 +451,7 @@ function MainScreen({ ownProfile, users, onViewOwnProfile, onViewPhoto, showDbWa
       <TopBar
         logo={
           <img
-            src={ownProfile.tgPhotoUrl || logoImg}
+            src={ownProfile.tgPhotoUrl?.trim() ? ownProfile.tgPhotoUrl : logoImg}
             alt={ownProfile.name || 'LMN'}
             className="w-8 h-8 rounded-full object-cover"
             onError={(e) => { (e.target as HTMLImageElement).src = logoImg }}

@@ -93,11 +93,11 @@ function GridTile({
       className={`card-enter tile-aspect w-full h-full rounded-lg overflow-hidden nav-press text-left relative ${tileClassName || ''}`}
       style={{ minHeight: '68px' }}
     >
-      {/* Invisible eye icon */}
+      {/* Invisible eye icon — bottom right, only visible to admin */}
       {user.isInvisible && (
         <div
-          className="absolute top-0.5 left-0.5 z-40 w-3 h-3 flex items-center justify-center rounded-full bg-purple-500/40 border border-purple-400/30 text-[7px]"
-          title="Invisible"
+          className="absolute bottom-5 right-0.5 z-40 w-3 h-3 flex items-center justify-center rounded-full bg-purple-500/40 border border-purple-400/30 text-[7px]"
+          title="Invisible user"
         >
           👁️‍🗨️
         </div>

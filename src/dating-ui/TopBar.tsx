@@ -75,7 +75,7 @@ export function TopBar({
 
       {/* RIGHT: Invisible | Unlock | Refresh | Language */}
       <div className="flex items-center gap-2">
-        {/* Invisible mode toggle */}
+        {/* Invisible mode toggle — open eye when OFF, closed eye when ON */}
         <button
           onClick={onToggleInvisible}
           className={`w-7 h-7 rounded-full flex items-center justify-center nav-press text-[10px] border ${
@@ -97,13 +97,13 @@ export function TopBar({
               : 'Purchase Invisible Mode (2000 \u2B50)'
           }
         >
-          {'\uD83D\uDC41\u200D\uD83D\uDDE8\uFE0F'}
+          {isInvisible ? '\uD83D\uDC41\u200D\uD83D\uDDE8\uFE0F' : '\uD83D\uDC41'}
         </button>
 
         {/* Unlock profile lock */}
         <button
           onClick={onPromptUnlockProfile}
-          className="w-7 h-7 rounded-full bg-[#5AC8FA]/20 border border-[#5AC8FA]/30 flex items-center justify-center nav-press"
+          className="w-7 h-7 rounded-full bg-[var(--app-primary)]/20 border border-[var(--app-primary)]/30 flex items-center justify-center nav-press"
           title={isAdmin ? 'Release Locks (Free)' : 'Unlock Profile (100 \u2B50)'}
         >
           <span className="text-[10px]">{'\uD83D\uDD13'}</span>
@@ -124,7 +124,7 @@ export function TopBar({
         {/* Language */}
         <button
           onClick={onCycleLang}
-          className="text-[10px] font-bold text-[#5AC8FA] px-2 py-1 rounded-full bg-[#5AC8FA]/10 border border-[#5AC8FA]/30 nav-press"
+          className="text-[10px] font-bold text-[var(--app-primary)] px-2 py-1 rounded-full bg-[var(--app-primary)]/10 border border-[var(--app-primary)]/30 nav-press"
         >
           {langLabel}
         </button>
