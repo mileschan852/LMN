@@ -1,5 +1,5 @@
 import {
-  getTg, isInTelegram, getUserId, getTimeAgo, getDistance, formatDist, isUserActive, isPrefLocked, getDefaultLang, isAdminUser, detectRealPhoto, checkPhotoGate, dbToProfile, formatRole, getGridRoleLabel, getFilterColor, createCloudKeys, createStorage, getZodiac, getZodiacEmoji,
+  getTg, isInTelegram, getUserId, getTimeAgo, getDistance, formatDist, isUserActive, isPrefLocked, getDefaultLang, isAdminUser, detectRealPhoto, checkPhotoGate, dbToProfile, formatRole, getGridRoleLabel, getFilterColor, createCloudKeys, createStorage, getZodiac, getZodiacEmoji, useRaffleActions,
   type UserProfile, type RoleFilterMode, type DbUser, type Raffle,
 } from 'dating-core'
 import { RaffleStatusDisplay, RaffleButton, BottomNav, StatsBar, ProfileGrid } from 'dating-ui'
@@ -948,6 +948,15 @@ export default function App() {
   const hasPurchasedInvisible = invisibleUntil !== null
   const [raffle, setRaffle] = useState<Raffle | null>(null)
 
+  // Raffle handlers — shared hook from dating-core
+  const { handleBuyRaffleTicket, handleStartNextRaffle } = useRaffleActions({
+    tableName: 'lmn_users',
+    workerUrl: 'https://lmn-d.mileschan852.workers.dev/createinvoice',
+    isAdmin,
+    raffle,
+    setRaffle: (r) => setRaffle(r as any),
+  })
+
   // Flying messages: shared across all users via Supabase
   const [flyingMessages, setFlyingMessages] = useState<{id: number; text: string; top: string}[]>([])
   const lastFlyingSendRef = useRef(0) // 1 min cooldown per user
@@ -1062,113 +1071,6 @@ export default function App() {
       }
     } catch { /* Worker failed */ }
   }, [isAdmin])
-
-  // ─── Raffle (Prize Draw) handlers ──────────────────────────────────
-
-  const handleBuyRaffleTicket = useCallback(async () => {
-    if (!raffle || raffle.status === 'completed') return
-    const tg = getTg()
-    const userId = tg?.initDataUnsafe?.user?.id
-    if (!userId) return
-
-    // Check if raffle has already ended (deadline passed)
-    if (raffle.status === 'active' && raffle.ends_at && new Date(raffle.ends_at).getTime() <= Date.now()) {
-      // Draw winner
-      const winner = await drawRaffleWinner(raffle.id)
-      if (winner) {
-        await completeRaffle(raffle.id, winner.user_id, winner.name)
-        // Apply prize to winner
-        if (raffle.prize_type === 'invisible') {
-          const until = new Date(Date.now() + 30 * 86400000).toISOString()
-          await updateInvisibleStatus(winner.user_id, until)
-        }
-      }
-      const final = await getActiveRaffle()
-      setRaffle((final || null) as any)
-      return
-    }
-
-    // Admin gets free ticket
-    if (isAdmin) {
-      const ok = await buyRaffleTicket(raffle.id, userId)
-      if (ok) {
-        const updated = await getActiveRaffle()
-        if (updated) {
-          setRaffle(updated as any)
-          // Auto-start countdown when >10 tickets reached, draw on next Wednesday
-          if (updated.current_tickets > 10 && updated.status === 'pending') {
-            await startRaffleCountdown(updated.id)
-            await setRaffleDrawToNextWednesday(updated.id)
-            const final = await getActiveRaffle()
-            if (final) setRaffle(final as any)
-          }
-        }
-      }
-      return
-    }
-
-    // Regular user: Stars payment
-    try {
-      const ctrl = new AbortController()
-      const timer = setTimeout(() => ctrl.abort(), 8000)
-      const res = await fetch('https://lmn-d.mileschan852.workers.dev/createinvoice', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, amount: 100, purpose: 'raffle' }),
-        signal: ctrl.signal,
-      })
-      clearTimeout(timer)
-      const data = await res.json()
-      if (data.ok && data.invoice_url && tg?.openInvoice) {
-        tg.openInvoice(data.invoice_url, async (status) => {
-          if (status === 'paid') {
-            const ok = await buyRaffleTicket(raffle.id, userId)
-            if (ok) {
-              const updated = await getActiveRaffle()
-              if (updated) {
-                setRaffle(updated as any)
-                if (updated.current_tickets > 10 && updated.status === 'pending') {
-                  await startRaffleCountdown(updated.id)
-                  await setRaffleDrawToNextWednesday(updated.id)
-                  const final = await getActiveRaffle()
-                  if (final) setRaffle(final as any)
-                }
-              }
-            }
-          }
-        })
-      }
-    } catch { /* Worker failed */ }
-  }, [raffle, isAdmin])
-
-  const handleStartNextRaffle = useCallback(async () => {
-    if (!isAdmin) return
-    // Auto-alternate: if last raffle was invisible (or none), start filters next
-    const nextType = (!raffle || raffle.prize_type === 'invisible') ? 'filters' : 'invisible'
-    const newRaffle = await createRaffle(nextType)
-    if (newRaffle) setRaffle(newRaffle as any)
-  }, [isAdmin, raffle])
-
-  // Poll active raffle to check if deadline reached — auto-draw winner
-  useEffect(() => {
-    if (!raffle || raffle.status !== 'active' || !raffle.ends_at) return
-    const checkDeadline = async () => {
-      if (new Date(raffle.ends_at!).getTime() <= Date.now()) {
-        const winner = await drawRaffleWinner(raffle.id)
-        if (winner) {
-          await completeRaffle(raffle.id, winner.user_id, winner.name)
-          if (raffle.prize_type === 'invisible') {
-            const until = new Date(Date.now() + 30 * 86400000).toISOString()
-            await updateInvisibleStatus(winner.user_id, until)
-          }
-        }
-        const final = await getActiveRaffle()
-        setRaffle((final || null) as any)
-      }
-    }
-    const interval = setInterval(checkDeadline, 30000) // Check every 30s
-    return () => clearInterval(interval)
-  }, [raffle?.status, raffle?.ends_at, raffle?.id, raffle?.prize_type])
 
   const promptUnlock = async () => {
     const tg = getTg()

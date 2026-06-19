@@ -99,8 +99,8 @@ export function useRaffleActions({ tableName, workerUrl, isAdmin, raffle, setRaf
       })
       clearTimeout(timer)
       const data = await res.json()
-      if (data.ok && data.result && tg?.openInvoice) {
-        tg.openInvoice(data.result, async (status: string) => {
+      if (data.ok && data.invoice_url && tg?.openInvoice) {
+        tg.openInvoice(data.invoice_url, async (status: string) => {
           if (status === 'paid') {
             const ok = await buyRaffleTicket(raffle.id, userId)
             if (ok) {
