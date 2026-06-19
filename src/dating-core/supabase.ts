@@ -52,6 +52,7 @@ export interface DbUser {
   filters_unlocked_expires_at: string | null
   profile_unlocked: boolean | null
   has_real_photo: boolean | null
+  hide_age: boolean | null
 }
 
 export interface Raffle {
@@ -607,6 +608,7 @@ export interface SupabaseClient {
   setUnlockCount: (userId: number, value: number) => Promise<boolean>
   relockUserFeatures: (userId: number) => Promise<boolean>
   ensureFilterUnlock: (userId: number) => Promise<boolean>
+  updateRealPhotoStatus: (userId: number, hasRealPhoto: boolean) => Promise<boolean>
   fetchUserPhotoStatus: (userId: number) => Promise<{ has_real_photo: boolean } | null>
 }
 
