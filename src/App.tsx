@@ -565,6 +565,7 @@ function MainScreen({ ownProfile, users, onViewOwnProfile, onViewPhoto, showDbWa
                 isAdmin={isAdmin}
                 isLoading={isLoadingUsers && users.length === 0}
                 matchingIds={matchingIds}
+                logoUrl={logoImg}
                 renderTileBottom={(user) => {
                   const genderLabel = user.gender?.charAt(0) || '?'
                   return (
@@ -690,7 +691,7 @@ function OwnProfileScreen({ profile, onSave, onBack, lang, editProfileUnlocked }
     setTimeout(() => setSaved(false), 2000)
   }
 
-  const photos = draft.tgPhotos?.length ? draft.tgPhotos : (draft.tgPhotoUrl ? [draft.tgPhotoUrl] : [])
+  const photos = draft.tgPhotos?.length ? draft.tgPhotos : (draft.tgPhotoUrl?.trim() ? [draft.tgPhotoUrl] : [logoImg])
   const currentPhoto = photos[photoIndex % photos.length]
   const hasMultiplePhotos = photos.length > 1
 
@@ -1156,6 +1157,12 @@ export default function App() {
     const tg = getTg()
     const inTg = isInTelegram()
     console.log('=== LMN Init === inTelegram:', inTg, 'WebApp:', !!tg)
+
+    // Browser fallback: generate a test user ID so storage keys are consistent
+    if (!inTg) {
+      tgUserId.current = 999999
+      console.log('Browser mode: using test user ID', tgUserId.current)
+    }
 
     if (tg) {
       tg.ready()

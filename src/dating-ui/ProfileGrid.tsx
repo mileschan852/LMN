@@ -47,6 +47,8 @@ export interface ProfileGridProps {
   tileClassName?: string
   // Optional: matching user IDs for dimming non-matching users
   matchingIds?: Set<string>
+  // Optional: logo URL for profile photo fallback
+  logoUrl?: string
 }
 
 // ─── Profile Tile ────────────────────────────────────────────────────
@@ -57,16 +59,18 @@ function GridTile({
   renderBottom,
   renderTopLeft,
   tileClassName,
+  logoUrl,
 }: {
   user: GridUser
   onClick?: () => void
   renderBottom: (user: GridUser) => React.ReactNode
   renderTopLeft?: (user: GridUser) => React.ReactNode
   tileClassName?: string
+  logoUrl?: string
 }) {
   const [imgLoaded, setImgLoaded] = useState(false)
   const [imgFailed, setImgFailed] = useState(false)
-  const photo = user.tgPhotoUrl
+  const photo = user.tgPhotoUrl?.trim()?.startsWith('http') ? user.tgPhotoUrl : logoUrl
   const imgRef = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
@@ -177,6 +181,7 @@ export function ProfileGrid({
   renderTileTopLeft,
   tileClassName,
   matchingIds,
+  logoUrl,
 }: ProfileGridProps) {
   // Build display list: own profile first, then other users, then blank tiles to fill
   const displayUsers: GridUser[] = [ownProfile, ...users.filter((u) => u.id !== ownProfile.id)]
@@ -263,6 +268,7 @@ export function ProfileGrid({
                 renderBottom={renderTileBottom}
                 renderTopLeft={renderTileTopLeft}
                 tileClassName={tileClassName}
+                logoUrl={logoUrl}
               />
             </div>
           </React.Fragment>
