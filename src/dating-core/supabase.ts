@@ -1,7 +1,7 @@
 // Supabase REST Client for LMN
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || ''
-const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://fngcjkclxxodjaiqkfkm.supabase.co'
+const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuZ2Nqa2NseHhvZGphaXFrZmttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5OTE4NzUsImV4cCI6MjA5MjU2Nzg3NX0.dpoNP8EO7iZCFP7dzjD33mCdiJ0gxl5lTl6-hPY0HH4'
 
 export const hasValidKey = ANON_KEY.startsWith('eyJ') && ANON_KEY.length > 50
 
@@ -100,8 +100,7 @@ export async function upsertUser(tableName: string, user: Partial<DbUser>): Prom
 export async function fetchNearby(tableName: string, lat: number, lng: number, limit = 100): Promise<DbUser[]> {
   if (!hasValidKey) return []
   try {
-    const cols = Object.keys({} as DbUser).join(',')
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?select=${cols}&limit=200`, { headers })
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?select=*&limit=200`, { headers })
     if (!res.ok) {
       const err = await res.text()
       console.error(`fetchNearby failed: ${res.status} ${err.substring(0, 200)}`)
@@ -436,21 +435,6 @@ export async function updateHideAgeStatus(tableName: string, userId: number, unt
   }
 }
 
-export async function updateUserRealPhoto(tableName: string, userId: number, hasRealPhoto: boolean): Promise<boolean> {
-  if (!hasValidKey) return false
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?id=eq.${userId}`, {
-      method: 'PATCH',
-      headers,
-      body: JSON.stringify({ has_real_photo: hasRealPhoto }),
-    })
-    return res.ok
-  } catch (err) {
-    console.error('updateUserRealPhoto failed:', err)
-    return false
-  }
-}
-
 export interface DbTopic {
   id: number
   name: string
@@ -614,7 +598,6 @@ export interface SupabaseClient {
   fetchGlobalUnlock: () => Promise<number>
   setGlobalUnlock: (timestamp: number) => Promise<boolean>
   fetchUserUnlockStatus: (userId: number) => Promise<UnlockStatus | null>
-  updateUserRealPhoto: (userId: number, hasRealPhoto: boolean) => Promise<boolean>
   setGridRowsUnlocked: (userId: number, value: number) => Promise<boolean>
   setFiltersUnlocked: (userId: number, unlocked: boolean, expiresAt: string | null) => Promise<boolean>
   updateInvisibleStatus: (userId: number, until: string | null) => Promise<boolean>
@@ -637,7 +620,7 @@ export function createSupabaseClient(tableName: string): SupabaseClient {
     fetchGlobalUnlock: () => fetchGlobalUnlock(tableName),
     setGlobalUnlock: (timestamp) => setGlobalUnlock(timestamp),
     fetchUserUnlockStatus: (userId) => fetchUserUnlockStatus(tableName, userId),
-    updateUserRealPhoto: (userId, hasRealPhoto) => updateUserRealPhoto(tableName, userId, hasRealPhoto),
+    updateRealPhotoStatus: (userId, hasRealPhoto) => updateRealPhotoStatus(tableName, userId, hasRealPhoto),
     setGridRowsUnlocked: (userId, value) => setGridRowsUnlocked(tableName, userId, value),
     setFiltersUnlocked: (userId, unlocked, expiresAt) => setFiltersUnlocked(tableName, userId, unlocked, expiresAt),
     updateInvisibleStatus: (userId, until) => updateInvisibleStatus(tableName, userId, until),
