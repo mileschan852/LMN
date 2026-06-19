@@ -3,29 +3,6 @@ import { X, ArrowLeft, MapPin, MessageCircle } from 'lucide-react'
 import type { Lang } from 'dating-core/i18n'
 import { t, getTimeAgo, formatDist, isUserActive, getZodiac, getZodiacEmoji } from 'dating-core'
 
-export interface ProfileViewUser {
-  id: string | number
-  name: string
-  tgPhotoUrl: string
-  tgPhotos?: string[]
-  distance: number
-  updatedAt: string
-  age: number
-  gender?: string
-  seekingGender?: string
-  seekingToday?: string
-  meetupType?: string
-  openToMessages?: boolean
-  height?: number
-  weight?: number
-  dob?: string
-  hideAge?: boolean
-  isOwn?: boolean
-  isInvisible?: boolean
-  isOnline?: boolean
-  [key: string]: unknown
-}
-
 interface ProfileViewProps {
   user: any
   lang: Lang
@@ -57,7 +34,7 @@ export function ProfileView({
   const [imgStates, setImgStates] = useState<{ loaded: boolean; failed: boolean }[]>([])
 
   // Edit mode state
-  const [draft, setDraft] = useState<ProfileViewUser>({ ...user })
+  const [draft, setDraft] = useState<any>({ ...user })
   const [saved, setSaved] = useState(false)
 
   // Sync draft when user changes
@@ -65,16 +42,14 @@ export function ProfileView({
     setDraft({ ...user })
   }, [user.id])
 
-  // Photo handling - always show first Telegram profile photo
-  const firstPhoto = isEdit
-    ? (draft.tgPhotoUrl?.trim()?.startsWith('http') ? draft.tgPhotoUrl : '')
-    : (user.tgPhotoUrl?.trim()?.startsWith('http') ? user.tgPhotoUrl : '')
+  // Photo handling - filter out empty/invalid URLs
+  const rawPhotos = isEdit
+    ? (draft.tgPhotos || [draft.tgPhotoUrl])
+    : (user.tgPhotos || [user.tgPhotoUrl])
 
-  const allPhotos = isEdit
-    ? (draft.tgPhotos?.length ? [firstPhoto, ...draft.tgPhotos.filter((p: string) => p !== firstPhoto)] : (firstPhoto ? [firstPhoto] : []))
-    : (user.tgPhotos?.length ? [firstPhoto, ...user.tgPhotos.filter((p: string) => p !== firstPhoto)] : (firstPhoto ? [firstPhoto] : []))
-
-  const displayPhotos = allPhotos.length > 0 ? allPhotos : (logoUrl ? [logoUrl] : [])
+  // Filter: only keep valid http URLs, remove empty/undefined
+  const validPhotos = (rawPhotos || []).filter((p: string) => p && p.trim().startsWith('http'))
+  const displayPhotos = validPhotos.length > 0 ? validPhotos : (logoUrl ? [logoUrl] : [])
 
   useEffect(() => {
     setImgStates(displayPhotos.map(() => ({ loaded: false, failed: false })))
@@ -86,8 +61,8 @@ export function ProfileView({
     setActiveIdx(Math.round(scrollRef.current.scrollLeft / scrollRef.current.clientWidth))
   }
 
-  const updateDraft = useCallback((field: keyof ProfileViewUser, value: unknown) => {
-    setDraft(prev => ({ ...prev, [field]: value }))
+  const updateDraft = useCallback((field: string, value: unknown) => {
+    setDraft((prev: any) => ({ ...prev, [field]: value }))
     setSaved(false)
   }, [])
 
@@ -106,12 +81,12 @@ export function ProfileView({
     setTimeout(() => setSaved(false), 2000)
   }
 
-  // ─── Age + Zodiac display (view mode) ──────────────────────────────
+  // ─── Age + Zodiac (view mode) ─────────────────────────────────────
   const showAge = user.age && !user.hideAge
   const zodiacSign = user.dob ? getZodiac(user.dob) : null
   const zodiacEmoji = zodiacSign ? getZodiacEmoji(zodiacSign) : null
 
-  // ─── Shared Photo Section ──────────────────────────────────────────
+  // ─── Photo Section ─────────────────────────────────────────────────
   const PhotoSection = ({ size = 'large' }: { size?: 'large' | 'small' }) => (
     <div className={size === 'large' ? 'flex-1 flex items-center relative' : 'relative w-full aspect-square bg-[#1A1A1A] overflow-hidden flex-shrink-0'}>
       {displayPhotos.length > 0 ? (
@@ -130,8 +105,8 @@ export function ProfileView({
                     draggable={false}
                     loading="eager"
                     decoding="async"
-                    onLoad={() => setImgStates(prev => { const next = [...prev]; next[i] = { ...next[i], loaded: true }; return next })}
-                    onError={() => setImgStates(prev => { const next = [...prev]; next[i] = { ...next[i], failed: true }; return next })}
+                    onLoad={() => setImgStates((prev: any) => { const next = [...prev]; next[i] = { ...next[i], loaded: true }; return next })}
+                    onError={() => setImgStates((prev: any) => { const next = [...prev]; next[i] = { ...next[i], failed: true }; return next })}
                   />
                 )}
                 {(!imgStates[i]?.loaded || imgStates[i]?.failed) && (
@@ -158,7 +133,6 @@ export function ProfileView({
         </div>
       )}
 
-      {/* Dot indicators */}
       {displayPhotos.length > 1 && size === 'large' && (
         <div className="flex justify-center gap-1.5 pb-3 absolute bottom-4 left-0 right-0">
           {displayPhotos.map((_p: string, i: number) => (
@@ -169,32 +143,36 @@ export function ProfileView({
     </div>
   )
 
-  // ─── Stats Row (view mode, above the line) ─────────────────────────
+  // ─── Preference Tags (view mode) ───────────────────────────────────
+  const PreferenceTags = () => {
+    const prefs = []
+    if (user.preference1) prefs.push({ label: user.preference1, color: user.preference1 === 'Safe' ? 'text-green-400' : 'text-orange-400' })
+    if (user.preference2) prefs.push({ label: user.preference2, color: user.preference2 === 'Clean' ? 'text-blue-400' : 'text-purple-400' })
+    if (user.preference3) prefs.push({ label: user.preference3, color: 'text-cyan-400' })
+    if (user.preference4) prefs.push({ label: user.preference4, color: 'text-yellow-400' })
+    if (prefs.length === 0) return null
+    return (
+      <div className="flex gap-2 mt-2 flex-wrap">
+        {prefs.map((p, i) => (
+          <span key={i} className={`text-[10px] font-bold ${p.color} bg-white/5 px-2 py-0.5 rounded-full border border-white/10`}>{p.label}</span>
+        ))}
+      </div>
+    )
+  }
+
+  // ─── Stats Row (view mode) ─────────────────────────────────────────
   const StatsRow = () => (
     <div className="flex gap-3 mt-3 text-xs flex-wrap items-center">
-      {/* Age (if not hidden) + Zodiac */}
-      {showAge && (
-        <span className="text-white font-bold">{user.age} years</span>
-      )}
-      {zodiacSign && (
-        <span className="text-purple-400 font-bold">{zodiacEmoji} {zodiacSign}</span>
-      )}
+      {showAge && <span className="text-white font-bold">{user.age} years</span>}
+      {zodiacSign && <span className="text-purple-400 font-bold">{zodiacEmoji} {zodiacSign}</span>}
       {user.gender && (
         <span className={`font-bold ${user.gender === 'Male' ? 'text-blue-400' : 'text-pink-400'}`}>
           {user.gender === 'Male' ? '♂ Man' : '♀ Woman'}
         </span>
       )}
-      {user.seekingGender && (
-        <span className="text-[#8E8E93]">seeking {user.seekingGender === 'Men' ? '♂ Men' : user.seekingGender === 'Women' ? '♀ Women' : '⚤ Both'}</span>
-      )}
-      {/* Divider */}
-      {(showAge || zodiacSign || user.gender) && (user.height || user.weight) && (
-        <span className="text-[#2C2C2E]">|</span>
-      )}
-      {/* Height & Weight */}
+      {(showAge || zodiacSign || user.gender) && (user.height || user.weight) && <span className="text-[#2C2C2E]">|</span>}
       {user.height ? <span className="text-[#8E8E93]">{user.height}cm</span> : null}
       {user.weight ? <span className="text-[#8E8E93]">{user.weight}kg</span> : null}
-      {/* Other stats */}
       {user.seekingToday ? <span className="text-green-400 font-bold">{user.seekingToday}</span> : null}
       {user.meetupType ? <span className="text-cyan-400 font-bold">{user.meetupType}</span> : null}
       {user.openToMessages ? <span className="font-bold text-yellow-400">⭐ {t(lang, 'message')}</span> : null}
@@ -203,9 +181,6 @@ export function ProfileView({
 
   // ─── EDIT MODE ─────────────────────────────────────────────────────
   if (isEdit) {
-    const heShe = draft.gender === 'Female' ? 'woman' : 'man'
-    const seekingLabel = draft.seekingGender === 'Women' ? 'woman' : draft.seekingGender === 'Men' ? 'man' : 'man or woman'
-
     return (
       <div className="view-enter h-full flex flex-col">
         {/* Header */}
@@ -221,27 +196,19 @@ export function ProfileView({
           {/* Photo */}
           <PhotoSection size="small" />
 
-          {/* Form fields */}
+          {/* Form */}
           <div className="px-4 py-4 space-y-4">
 
             {/* "I'm a [man/woman] seeking [man/woman]" */}
             <div className="bg-[#1A1A1A] border border-[#2C2C2E] rounded-lg p-3">
-              <p className="text-white text-sm mb-2">
+              <p className="text-white text-sm">
                 I'm a{' '}
-                <select
-                  value={draft.gender || 'Male'}
-                  onChange={e => updateDraft('gender', e.target.value)}
-                  className="bg-[#2C2C2E] border border-[#3A3A3C] rounded px-2 py-1 text-white text-sm inline-block w-28"
-                >
+                <select value={draft.gender || 'Male'} onChange={e => updateDraft('gender', e.target.value)} className="bg-[#2C2C2E] border border-[#3A3A3C] rounded px-2 py-1 text-white text-sm inline-block w-28">
                   <option value="Male">man</option>
                   <option value="Female">woman</option>
                 </select>
                 {' '}seeking{' '}
-                <select
-                  value={draft.seekingGender || 'Women'}
-                  onChange={e => updateDraft('seekingGender', e.target.value)}
-                  className="bg-[#2C2C2E] border border-[#3A3A3C] rounded px-2 py-1 text-white text-sm inline-block w-36"
-                >
+                <select value={draft.seekingGender || 'Women'} onChange={e => updateDraft('seekingGender', e.target.value)} className="bg-[#2C2C2E] border border-[#3A3A3C] rounded px-2 py-1 text-white text-sm inline-block w-36">
                   <option value="Men">a man</option>
                   <option value="Women">a woman</option>
                   <option value="Both">men or women</option>
@@ -249,26 +216,51 @@ export function ProfileView({
               </p>
             </div>
 
-            {/* DOB + Hide Age (same line) */}
+            {/* Preferences (HKMOD) */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <FieldLabel label="Preference" />
+                <select value={draft.preference1 || 'Raw'} onChange={e => updateDraft('preference1', e.target.value)} className="w-full h-10 bg-[#1A1A1A] border border-[#2C2C2E] rounded-lg px-3 text-white text-sm">
+                  <option value="Safe">Safe</option>
+                  <option value="Raw">Raw</option>
+                </select>
+              </div>
+              <div>
+                <FieldLabel label="Party" />
+                <select value={draft.preference2 || 'Party'} onChange={e => updateDraft('preference2', e.target.value)} className="w-full h-10 bg-[#1A1A1A] border border-[#2C2C2E] rounded-lg px-3 text-white text-sm">
+                  <option value="Clean">Clean</option>
+                  <option value="Party">Party</option>
+                  <option value="Party✓">Party✓</option>
+                </select>
+              </div>
+              <div>
+                <FieldLabel label="Setup" />
+                <select value={draft.preference3 || '1on1'} onChange={e => updateDraft('preference3', e.target.value)} className="w-full h-10 bg-[#1A1A1A] border border-[#2C2C2E] rounded-lg px-3 text-white text-sm">
+                  <option value="1on1">1on1</option>
+                  <option value="Group">Group</option>
+                </select>
+              </div>
+              <div>
+                <FieldLabel label="Host" />
+                <select value={draft.preference4 || 'Travel'} onChange={e => updateDraft('preference4', e.target.value)} className="w-full h-10 bg-[#1A1A1A] border border-[#2C2C2E] rounded-lg px-3 text-white text-sm">
+                  <option value="Host">Host</option>
+                  <option value="Travel">Travel</option>
+                  <option value="Outdoor">Outdoor</option>
+                  <option value="Sauna">Sauna</option>
+                </select>
+              </div>
+            </div>
+
+            {/* DOB + Hide Age */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs text-[#8E8E93] font-medium uppercase">{t(lang, 'dateOfBirth')}</span>
                 <label className="flex items-center gap-1.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={!!draft.hideAge}
-                    onChange={e => updateDraft('hideAge', e.target.checked)}
-                    className="w-3.5 h-3.5 rounded accent-[var(--app-primary)]"
-                  />
+                  <input type="checkbox" checked={!!draft.hideAge} onChange={e => updateDraft('hideAge', e.target.checked)} className="w-3.5 h-3.5 rounded accent-[var(--app-primary)]" />
                   <span className="text-xs text-[#8E8E93]">Hide Age</span>
                 </label>
               </div>
-              <input
-                type="date"
-                value={draft.dob || ''}
-                onChange={e => updateDraft('dob', e.target.value)}
-                className="w-full h-10 bg-[#1A1A1A] border border-[#2C2C2E] rounded-lg px-3 text-white text-sm [color-scheme:dark]"
-              />
+              <input type="date" value={draft.dob || ''} onChange={e => updateDraft('dob', e.target.value)} className="w-full h-10 bg-[#1A1A1A] border border-[#2C2C2E] rounded-lg px-3 text-white text-sm [color-scheme:dark]" />
             </div>
 
             {/* Height & Weight */}
@@ -296,7 +288,7 @@ export function ProfileView({
           </div>
         </div>
 
-        {/* Save button */}
+        {/* Save */}
         <div className="shrink-0 px-4 py-3 border-t border-[#2C2C2E] bg-[#0A0A0A]">
           <button onClick={handleSave} className="w-full h-12 gradient-btn rounded-xl text-white font-semibold text-sm nav-press">
             {saved ? '✓ Saved' : t(lang, 'save')}
@@ -309,29 +301,22 @@ export function ProfileView({
   // ─── VIEW MODE ─────────────────────────────────────────────────────
   return (
     <div className="fixed top-0 left-0 right-0 bottom-0 z-[60] bg-black/95 flex flex-col animate-in fade-in duration-200" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-      {/* Close button */}
       <button onClick={onClose} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-[#1A1A1A]/80 flex items-center justify-center z-20 nav-press">
         <X className="w-5 h-5 text-white" />
       </button>
 
-      {/* Photo carousel */}
       <PhotoSection size="large" />
 
-      {/* Profile info */}
       <div className="w-full px-4 pb-4 pt-2">
         <div className="flex items-center justify-between">
           <div>
-            {/* Name + Age (if not hidden) */}
-            <p className="text-white font-bold text-lg">
-              {user.name}{showAge ? `, ${user.age}` : ''}
-            </p>
+            <p className="text-white font-bold text-lg">{user.name}{showAge ? `, ${user.age}` : ''}</p>
             <div className="flex items-center gap-2 mt-0.5">
               <MapPin className="w-3.5 h-3.5 text-[var(--app-primary)]" />
               <span className="text-[#8E8E93] text-xs">{formatDist(user.distance)}</span>
               {isUserActive(user) && <span className="ml-2 px-1.5 py-0.5 bg-[#00D4AA]/20 text-[#00D4AA] text-[10px] font-bold rounded-full">{t(lang, 'online').toUpperCase()}</span>}
             </div>
           </div>
-          {/* Message button — only for others */}
           {!user.isOwn && ownProfile?.seekingToday !== 'Just Browsing' && user.seekingToday !== 'Just Browsing' && onMessage && (
             <button onClick={() => onMessage(user)} className="h-10 gradient-btn rounded-xl text-white font-semibold text-sm nav-press flex items-center gap-2 px-5">
               <MessageCircle className="w-4 h-4" />
@@ -340,17 +325,12 @@ export function ProfileView({
           )}
         </div>
         <StatsRow />
+        <PreferenceTags />
       </div>
     </div>
   )
 }
 
-// ─── Helper ──────────────────────────────────────────────────────────
-
 function FieldLabel({ label }: { label: string }) {
-  return (
-    <span className="text-xs text-[#8E8E93] font-medium uppercase block mb-1.5">
-      {label}
-    </span>
-  )
+  return <span className="text-xs text-[#8E8E93] font-medium uppercase block mb-1.5">{label}</span>
 }

@@ -392,10 +392,10 @@ export async function updateUnlockCount(_tableName: string, userId: number, delt
   }
 }
 
-export async function setUnlockCount(_tableName: string, userId: number, value: number): Promise<boolean> {
+export async function setUnlockCount(tableName: string, userId: number, value: number): Promise<boolean> {
   if (!hasValidKey) return false
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${userId}`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?id=eq.${userId}`, {
       method: 'PATCH',
       headers,
       body: JSON.stringify({ unlock_count: value }),
