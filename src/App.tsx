@@ -255,9 +255,6 @@ function LocationGate({ onGranted, lang }: { onGranted: (lat: number, lng: numbe
         <LocateFixed className="w-4 h-4" />
         {status === 'requesting' ? t(lang, 'checkingLoc') : t(lang, 'tapToRetry')}
       </button>
-      <button onClick={() => onGranted(22.3193, 114.1694)} className="mt-3 text-[#8E8E93] text-xs underline">
-        Continue without location
-      </button>
     </div>
   )
 }
@@ -450,12 +447,18 @@ function MainScreen({ ownProfile, users, onViewOwnProfile, onViewPhoto, showDbWa
     <div className="flex-1 overflow-y-auto min-h-0 pb-20">
       <TopBar
         logo={
-          <img
-            src={ownProfile.tgPhotoUrl?.trim() ? ownProfile.tgPhotoUrl : logoImg}
-            alt={ownProfile.name || 'LMN'}
-            className="w-8 h-8 rounded-full object-cover"
-            onError={(e) => { (e.target as HTMLImageElement).src = logoImg }}
-          />
+          ownProfile.tgPhotoUrl?.trim()?.startsWith('http') ? (
+            <img
+              src={ownProfile.tgPhotoUrl}
+              alt={ownProfile.name || 'LMN'}
+              className="w-8 h-8 rounded-full object-cover"
+              onError={(e) => { (e.target as HTMLImageElement).src = logoImg }}
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+              <img src={logoImg} alt="LMN" className="w-full h-full object-cover" />
+            </div>
+          )
         }
         appName="LMN"
         raffle={raffle}
