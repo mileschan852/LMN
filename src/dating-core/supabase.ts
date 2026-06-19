@@ -606,7 +606,6 @@ export interface SupabaseClient {
   setUnlockCount: (userId: number, value: number) => Promise<boolean>
   relockUserFeatures: (userId: number) => Promise<boolean>
   ensureFilterUnlock: (userId: number) => Promise<boolean>
-  updateRealPhotoStatus: (userId: number, hasRealPhoto: boolean) => Promise<boolean>
   fetchUserPhotoStatus: (userId: number) => Promise<{ has_real_photo: boolean } | null>
 }
 
@@ -629,7 +628,6 @@ export function createSupabaseClient(tableName: string): SupabaseClient {
     setUnlockCount: (userId, value) => setUnlockCount(tableName, userId, value),
     relockUserFeatures: (userId) => relockUserFeatures(tableName, userId),
     ensureFilterUnlock: (userId) => ensureFilterUnlock(tableName, userId),
-    updateRealPhotoStatus: (userId, hasRealPhoto) => updateRealPhotoStatus(tableName, userId, hasRealPhoto),
     fetchUserPhotoStatus: (userId) => fetchUserPhotoStatus(tableName, userId),
   }
 }
