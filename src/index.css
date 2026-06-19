@@ -1,18 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* All shared styles imported from dating-core */
-@import 'dating-core/styles.css';
-
-/* LMN overrides: blue theme instead of orange */
-@layer base {
-  :root {
-    --app-primary: #5AC8FA;
-    --app-primary-light: #7DD4FF;
-    --app-primary-10: rgba(90, 200, 250, 0.1);
-    --app-primary-20: rgba(90, 200, 250, 0.2);
-    --app-primary-30: rgba(90, 200, 250, 0.3);
-    --app-primary-50: rgba(90, 200, 250, 0.5);
-  }
-}
