@@ -169,7 +169,7 @@ function PhotoOverlay({ user, onClose, onMessage, lang, ownProfile }: { user: Us
 
       {photos.length > 1 && (
         <div className="flex justify-center gap-1.5 pb-3">
-          {photos.map((_, i) => <div key={i} className={`h-1.5 rounded-full transition-all duration-200 ${i === activeIdx ? 'w-4 bg-[#FF6B35]' : 'w-1.5 bg-[#8E8E93]/40'}`} />)}
+          {photos.map((_, i) => <div key={i} className={`h-1.5 rounded-full transition-all duration-200 ${i === activeIdx ? 'w-4 bg-[#5AC8FA]' : 'w-1.5 bg-[#8E8E93]/40'}`} />)}
         </div>
       )}
 
@@ -178,7 +178,7 @@ function PhotoOverlay({ user, onClose, onMessage, lang, ownProfile }: { user: Us
           <div>
             <p className="text-white font-bold text-lg">{user.age ? `${user.name}, ${user.age}` : user.name}</p>
             <div className="flex items-center gap-2 mt-0.5">
-              <MapPin className="w-3.5 h-3.5 text-[#FF6B35]" />
+              <MapPin className="w-3.5 h-3.5 text-[#5AC8FA]" />
               <span className="text-[#8E8E93] text-xs">{formatDist(user.distance)}</span>
               {isUserActive(user) && <span className="ml-2 px-1.5 py-0.5 bg-[#00D4AA]/20 text-[#00D4AA] text-[10px] font-bold rounded-full">{t(lang, 'online').toUpperCase()}</span>}
             </div>
@@ -230,7 +230,7 @@ function LocationGate({ onGranted, lang }: { onGranted: (lat: number, lng: numbe
   if (status === 'checking') {
     return (
       <div className="fixed top-0 left-0 right-0 bottom-0 z-[70] bg-[#0A0A0A] flex flex-col items-center justify-center" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-        <LocateFixed className="w-12 h-12 text-[#FF6B35] animate-pulse mb-4" />
+        <LocateFixed className="w-12 h-12 text-[#5AC8FA] animate-pulse mb-4" />
         <p className="text-white font-semibold">{t(lang, 'checkingLoc')}</p>
       </div>
     )
@@ -238,8 +238,8 @@ function LocationGate({ onGranted, lang }: { onGranted: (lat: number, lng: numbe
 
   return (
     <div className="fixed top-0 left-0 right-0 bottom-0 z-[70] bg-[#0A0A0A] flex flex-col items-center justify-center px-6" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-      <div className="w-16 h-16 rounded-full bg-[#FF6B35]/10 flex items-center justify-center mb-4">
-        <LocateFixed className="w-8 h-8 text-[#FF6B35]" />
+      <div className="w-16 h-16 rounded-full bg-[#5AC8FA]/10 flex items-center justify-center mb-4">
+        <LocateFixed className="w-8 h-8 text-[#5AC8FA]" />
       </div>
       <h2 className="text-xl font-bold text-white mb-2">{t('en', 'locationRequired')}</h2>
       <p className="text-[#8E8E93] text-sm text-center mb-6">
@@ -247,7 +247,7 @@ function LocationGate({ onGranted, lang }: { onGranted: (lat: number, lng: numbe
       </p>
       {status === 'denied' && (
         <div className="bg-[#1A1A1A] border border-[#2C2C2E] rounded-xl p-4 mb-4 w-full max-w-sm">
-          <p className="text-[#FF6B35] text-sm font-semibold mb-1">{t(lang, 'permissionDenied')}</p>
+          <p className="text-[#5AC8FA] text-sm font-semibold mb-1">{t(lang, 'permissionDenied')}</p>
           <p className="text-[#8E8E93] text-xs">{t(lang, 'enableLocation')}</p>
         </div>
       )}
@@ -331,7 +331,7 @@ function UnlockTipCycle({ lang, isPremium, gridRowsUnlocked, channelFollowUnlock
       className="ml-auto flex items-center gap-1 text-[9px] text-[#8E8E93] nav-press"
     >
       <span className="w-4 h-4 rounded-full bg-[#2C2C2E] flex items-center justify-center">💡</span>
-      <span className={`truncate max-w-[140px] ${isChannelTip && !channelFollowUnlock ? 'text-[#5AC8FA]' : ''}`}>{current}</span>
+      <span key={idx} className={`truncate max-w-[140px] animate-fadeIn ${isChannelTip && !channelFollowUnlock ? 'text-[#5AC8FA]' : ''}`}>{current}</span>
     </button>
   )
 }
@@ -479,16 +479,17 @@ function MainScreen({ ownProfile, users, onViewOwnProfile, onViewPhoto, showDbWa
         isPremium={isPremium}
         gridRowsUnlocked={gridRowsUnlocked}
         channelFollowUnlock={channelFollowUnlock}
+        hasRealPhoto={ownProfile.hasRealPhoto}
         appVersion="1L"
       >
         <UnlockTipCycle lang={lang} isPremium={isPremium} gridRowsUnlocked={gridRowsUnlocked} channelFollowUnlock={channelFollowUnlock} onClaimChannelFollow={onClaimChannelFollow} />
       </StatsBar>
 
       {showDbWarning && (
-        <div className="mx-3 mt-2 bg-[#FF6B35]/10 border border-[#FF6B35]/30 rounded-lg px-3 py-2 flex items-start gap-2">
-          <AlertTriangle className="w-4 h-4 text-[#FF6B35] flex-shrink-0 mt-0.5" />
+        <div className="mx-3 mt-2 bg-[#5AC8FA]/10 border border-[#5AC8FA]/30 rounded-lg px-3 py-2 flex items-start gap-2">
+          <AlertTriangle className="w-4 h-4 text-[#5AC8FA] flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-[#FF6B35] text-xs font-semibold">{t(lang, 'dbNotConfigured')}</p>
+            <p className="text-[#5AC8FA] text-xs font-semibold">{t(lang, 'dbNotConfigured')}</p>
             <p className="text-[#8E8E93] text-[10px]">{t(lang, 'dbConfigHint')}</p>
           </div>
         </div>
@@ -536,7 +537,7 @@ function MainScreen({ ownProfile, users, onViewOwnProfile, onViewPhoto, showDbWa
       <div className="px-3">
         {isLoadingUsers && users.length === 0 && (
           <div className="text-center py-8">
-            <div className="w-6 h-6 border-2 border-[#FF6B35] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+            <div className="w-6 h-6 border-2 border-[#5AC8FA] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
             <p className="text-[#8E8E93] text-xs">{t(lang, 'findingMembers')}</p>
           </div>
         )}
@@ -565,7 +566,7 @@ function MainScreen({ ownProfile, users, onViewOwnProfile, onViewPhoto, showDbWa
                   const genderLabel = user.gender?.charAt(0) || '?'
                   return (
                     <div className="flex items-center justify-between">
-                      <p className="text-[#FF6B35] text-[7px] font-medium">{user.age} • {formatDist(user.distance ?? 0)}</p>
+                      <p className="text-[#5AC8FA] text-[7px] font-medium">{user.age} • {formatDist(user.distance ?? 0)}</p>
                       {!user.isOwn && <p className="text-[#8E8E93] text-[6px]">{getTimeAgo(user.updatedAt)}</p>}
                       <p className={`text-[6px] font-bold ${user.gender === 'Male' ? 'text-blue-400' : 'text-pink-400'}`}>{genderLabel}</p>
                     </div>
@@ -582,7 +583,7 @@ function MainScreen({ ownProfile, users, onViewOwnProfile, onViewPhoto, showDbWa
           <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#00D4AA]" />{lang === 'en' ? 'Online' : lang === 'ru' ? 'Онлайн' : '在線'}</span>
           <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#8E8E93]" />{t(lang, 'offlineStatus')}</span>
         </div>
-        <span className="text-[#FF6B35]">{t(lang, 'youOrangeBorder')}</span>
+        <span className="text-[#5AC8FA]">{t(lang, 'youOrangeBorder')}</span>
       </div>
 
     </div>
@@ -627,7 +628,7 @@ function OwnProfileScreen({ profile, onSave, onBack, lang, editProfileUnlocked }
   const FieldLabel = ({ label, locked }: { label: string, locked?: boolean }) => (
     <span className="text-xs text-[#8E8E93] font-medium uppercase block mb-1.5 flex items-center gap-1">
       {label}
-      {locked && <Lock className="w-3 h-3 text-[#FF6B35]" />}
+      {locked && <Lock className="w-3 h-3 text-[#5AC8FA]" />}
     </span>
   )
 
@@ -769,12 +770,12 @@ function OwnProfileScreen({ profile, onSave, onBack, lang, editProfileUnlocked }
             value={draft.dob || ''}
             readOnly={hasSavedProfile}
             onChange={(e) => !hasSavedProfile && updateDraft('dob', e.target.value)}
-            className={`w-full h-10 px-3 bg-[#1A1A1A] rounded-lg text-white text-sm outline-none border border-[#2C2C2E] focus:border-[#FF6B35]/50 ${hasSavedProfile ? 'cursor-not-allowed' : ''}`}
+            className={`w-full h-10 px-3 bg-[#1A1A1A] rounded-lg text-white text-sm outline-none border border-[#2C2C2E] focus:border-[#5AC8FA]/50 ${hasSavedProfile ? 'cursor-not-allowed' : ''}`}
           />
           <label className="flex items-center gap-2 cursor-pointer mt-2">
             <input type="checkbox" checked={!!draft.hideAge}
               onChange={(e) => updateDraft('hideAge', e.target.checked)}
-              className="w-4 h-4 accent-[#FF6B35]"
+              className="w-4 h-4 accent-[#5AC8FA]"
             />
             <span className="text-sm text-white">🙈 Hide my age on profile</span>
           </label>
@@ -807,7 +808,7 @@ function OwnProfileScreen({ profile, onSave, onBack, lang, editProfileUnlocked }
           <select
             value={draft.seekingToday || 'Just Browsing'}
             onChange={(e) => updateDraft('seekingToday', e.target.value)}
-            className="w-full h-10 px-3 bg-[#1A1A1A] rounded-lg text-white text-sm outline-none border border-[#2C2C2E] focus:border-[#FF6B35]/50 appearance-none"
+            className="w-full h-10 px-3 bg-[#1A1A1A] rounded-lg text-white text-sm outline-none border border-[#2C2C2E] focus:border-[#5AC8FA]/50 appearance-none"
           >
             {['Just Browsing', 'Chat Only', 'Video Call', 'Meet Up'].map(s => (
               <option key={s} value={s}>{s}</option>
@@ -1624,7 +1625,7 @@ export default function App() {
     return (
       <div className="min-h-[100vh] bg-neutral-950 flex justify-center">
         <div className="w-full max-w-[min(520px,100vw)] bg-[#0A0A0A] h-[100vh] flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-[#FF6B35] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#5AC8FA] border-t-transparent rounded-full animate-spin" />
         </div>
       </div>
     )
@@ -1638,14 +1639,14 @@ export default function App() {
       <div className="min-h-[100vh] bg-neutral-950 flex justify-center">
         <div className="w-full max-w-[min(520px,100vw)] bg-[#0A0A0A] h-[100vh] relative flex flex-col px-6 pt-16 pb-6 overflow-y-auto">
           <div className="flex flex-col items-center text-center flex-shrink-0">
-            <div className="w-16 h-16 rounded-full bg-[#FF6B35]/10 flex items-center justify-center mb-4">
-              <Lock className="w-8 h-8 text-[#FF6B35]" />
+            <div className="w-16 h-16 rounded-full bg-[#5AC8FA]/10 flex items-center justify-center mb-4">
+              <Lock className="w-8 h-8 text-[#5AC8FA]" />
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">{t(lang, 'membersOnly')}</h1>
             <p className="text-[#8E8E93] text-sm mb-1">
               This app is exclusively for members of
             </p>
-            <p className="text-[#FF6B35] font-semibold text-sm mb-4">@LetsMsetNow</p>
+            <p className="text-[#5AC8FA] font-semibold text-sm mb-4">@LetsMsetNow</p>
             <button
               onClick={() => {
                 const tg2 = getTg()
@@ -1814,4 +1815,4 @@ export default function App() {
               })
             }}
             groupChatUrl="https://t.me/LetsMeetNow"
-            referShareUrl="https://t.me/share/url?url=https://t.me/Lets
+            referShareUr

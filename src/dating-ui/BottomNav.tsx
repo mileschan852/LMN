@@ -59,30 +59,30 @@ export function BottomNav({
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder={t(lang, 'message')}
-            className="flex-1 h-9 px-3 rounded-full bg-[#1A1A1A] border border-[#2C2C2E] text-sm text-white placeholder-[#8E8E93] focus:outline-none focus:border-[#FF6B35]/50"
+            className="flex-1 h-9 px-3 rounded-full bg-[#1A1A1A] border border-[#2C2C2E] text-sm text-white placeholder-[#8E8E93] focus:outline-none focus:border-[#5AC8FA]/50"
           />
           <button
             onClick={handleSend}
             disabled={!inputText.trim() || cooldownRemaining > 0}
-            className="w-9 h-9 rounded-full bg-[#FF6B35] flex items-center justify-center nav-press disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-9 h-9 rounded-full bg-[#5AC8FA] flex items-center justify-center nav-press disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <Send className="w-4 h-4 text-white" />
           </button>
         </div>
         <nav className="h-14 flex items-center justify-around">
-          <button className="nav-press flex flex-col items-center gap-0.5 min-w-[50px] text-[#FF6B35]">
+          <button className="nav-press flex flex-col items-center gap-0.5 min-w-[50px] text-[#5AC8FA]">
             <Grid3X3 className="w-5 h-5" />
             <span className="text-[9px] font-medium">{t(lang, 'profiles')}</span>
           </button>
-          <button onClick={handleGroupChat} className="nav-press flex flex-col items-center gap-0.5 min-w-[50px] text-[#FF6B35]">
+          <button onClick={handleGroupChat} className="nav-press flex flex-col items-center gap-0.5 min-w-[50px] text-[#5AC8FA]">
             <Users className="w-5 h-5" />
             <span className="text-[9px] font-medium">{t(lang, 'groupChat')}</span>
           </button>
-          <button onClick={handleRefer} className="nav-press flex flex-col items-center gap-0.5 min-w-[50px] text-[#FF6B35]">
+          <button onClick={handleRefer} className="nav-press flex flex-col items-center gap-0.5 min-w-[50px] text-[#5AC8FA]">
             <Gift className="w-5 h-5" />
             <span className="text-[9px] font-medium">{t(lang, 'refer')}</span>
           </button>
-          <button onClick={handleWallet} className="nav-press flex flex-col items-center gap-0.5 min-w-[50px] text-[#FF6B35]">
+          <button onClick={handleWallet} className="nav-press flex flex-col items-center gap-0.5 min-w-[50px] text-[#5AC8FA]">
             <Wallet className="w-5 h-5" />
             <span className="text-[9px] font-medium">{t(lang, 'wallet')}</span>
           </button>

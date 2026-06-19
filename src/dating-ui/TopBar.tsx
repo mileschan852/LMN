@@ -103,7 +103,7 @@ export function TopBar({
         {/* Unlock profile lock */}
         <button
           onClick={onPromptUnlockProfile}
-          className="w-7 h-7 rounded-full bg-[#FF6B35]/20 border border-[#FF6B35]/30 flex items-center justify-center nav-press"
+          className="w-7 h-7 rounded-full bg-[#5AC8FA]/20 border border-[#5AC8FA]/30 flex items-center justify-center nav-press"
           title={isAdmin ? 'Release Locks (Free)' : 'Unlock Profile (100 \u2B50)'}
         >
           <span className="text-[10px]">{'\uD83D\uDD13'}</span>
@@ -124,7 +124,7 @@ export function TopBar({
         {/* Language */}
         <button
           onClick={onCycleLang}
-          className="text-[10px] font-bold text-[#FF6B35] px-2 py-1 rounded-full bg-[#FF6B35]/10 border border-[#FF6B35]/30 nav-press"
+          className="text-[10px] font-bold text-[#5AC8FA] px-2 py-1 rounded-full bg-[#5AC8FA]/10 border border-[#5AC8FA]/30 nav-press"
         >
           {langLabel}
         </button>

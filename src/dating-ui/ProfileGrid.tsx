@@ -142,14 +142,14 @@ function GridTile({
 
       {/* Own profile border */}
       {user.isOwn && (
-        <div className="absolute inset-0 border-2 border-[#FF6B35] rounded-lg pointer-events-none z-30" />
+        <div className="absolute inset-0 border-2 border-[#5AC8FA] rounded-lg pointer-events-none z-30" />
       )}
 
       {/* Bottom info */}
       <div className="absolute bottom-0 left-0 right-0 px-[3px] pb-[1px] pointer-events-none z-30 flex flex-col justify-end">
         <p
           className={`font-semibold text-[8px] leading-tight truncate ${
-            user.isOwn ? 'text-[#FF6B35]' : 'text-white'
+            user.isOwn ? 'text-[#5AC8FA]' : 'text-white'
           }`}
         >
           {user.isOwn ? 'You' : user.name}
@@ -197,7 +197,7 @@ export function ProfileGrid({
   if (isLoading && users.length === 0) {
     return (
       <div className="text-center py-8">
-        <div className="w-6 h-6 border-2 border-[#FF6B35] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+        <div className="w-6 h-6 border-2 border-[#5AC8FA] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
         <p className="text-[#8E8E93] text-xs">Loading...</p>
       </div>
     )
@@ -231,24 +231,24 @@ export function ProfileGrid({
             {/* Divider row — tap to unlock +1 row */}
             {idx === unlockedSlots && unlockedSlots < 100 && (
               <div
-                className="col-span-full flex items-center justify-center py-2 my-1 cursor-pointer select-none active:opacity-60 transition-opacity rounded-lg bg-gradient-to-r from-[#FF6B35]/10 to-purple-600/10 border border-[#FF6B35]/30"
+                className="col-span-full flex items-center justify-center py-2 my-1 cursor-pointer select-none active:opacity-60 transition-opacity rounded-lg bg-gradient-to-r from-[#5AC8FA]/10 to-purple-600/10 border border-[#5AC8FA]/30"
                 onClick={onPromptUnlock}
               >
-                <span className="text-[10px] text-[#FF6B35] font-bold mr-2">🔒</span>
-                <span className="text-[10px] text-[#FF6B35] font-semibold">
+                <span className="text-[10px] text-[#5AC8FA] font-bold mr-2">🔒</span>
+                <span className="text-[10px] text-[#5AC8FA] font-semibold">
                   {isAdmin ? 'Tap to unlock row (admin)' : 'Tap to unlock — 1000 ⭐'}
                 </span>
                 <span className="text-[9px] text-[#8E8E93] ml-2">
                   {totalRealUsers > unlockedSlots ? `(${totalRealUsers - unlockedSlots} more)` : ''}
                 </span>
-                <span className="mx-2 text-[10px] text-[#FF6B35] font-bold">🔒</span>
+                <span className="mx-2 text-[10px] text-[#5AC8FA] font-bold">🔒</span>
               </div>
             )}
 
             <div
               className="relative aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200"
               style={{
-                borderColor: user.id === ownProfile.id ? '#FF6B35' : 'transparent',
+                borderColor: user.id === ownProfile.id ? '#5AC8FA' : 'transparent',
                 opacity: !isAboveDivider ? 0.3 : matchingIds && !matchingIds.has(user.id) ? 0.25 : 1,
                 pointerEvents: !isAboveDivider ? 'none' : undefined,
               }}

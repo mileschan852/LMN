@@ -29,7 +29,7 @@ export function StatsBar({
 
   return (
     <div className="px-3 pt-1 flex items-center gap-2 text-[10px] text-[#8E8E93]">
-      <span className="text-[#FF6B35] font-bold whitespace-nowrap flex-shrink-0">
+      <span className="text-[#5AC8FA] font-bold whitespace-nowrap flex-shrink-0">
         {rowsLabel}: {totalRows}
       </span>
       <span className="text-[#2C2C2E]">|</span>
