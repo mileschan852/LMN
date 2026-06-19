@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { getTg } from '../utils'
+import { getTg } from '../storage'
 
 export interface PhotoInitResult {
   photoUrl: string
