@@ -2,7 +2,7 @@ import {
   getTg, isInTelegram, getUserId, getTimeAgo, getDistance, formatDist, isUserActive, isPrefLocked, getDefaultLang, isAdminUser, dbToProfile, formatRole, getGridRoleLabel, getFilterColor, createCloudKeys, createStorage, getZodiac, getZodiacEmoji, useRaffleActions,
   type UserProfile, type RoleFilterMode, type DbUser, type Raffle,
 } from 'dating-core'
-import { BottomNav, StatsBar, ProfileGrid, TopBar } from 'dating-ui'
+import { BottomNav, StatsBar, ProfileGrid, TopBar, ProfileView } from 'dating-ui'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import './App.css'
 import logoImg from './assets/lmn-logo.svg'
@@ -96,116 +96,7 @@ const storage = createStorage({ prefix: 'lmn' })
 
 // ─── Photo Overlay ────────────────────────────────────────────────────
 
-function PhotoOverlay({ user, onClose, onMessage, lang, ownProfile }: { user: UserProfile; onClose: () => void; onMessage: (u: UserProfile) => void; lang: Lang; ownProfile: UserProfile }) {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [activeIdx, setActiveIdx] = useState(0)
-  const [imgStates, setImgStates] = useState<{ loaded: boolean; failed: boolean }[]>([])
-  const photos = user.tgPhotos?.length ? user.tgPhotos : (user.tgPhotoUrl ? [user.tgPhotoUrl] : [])
-
-  // Initialize image states when photos change
-  useEffect(() => {
-    setImgStates(photos.map(() => ({ loaded: false, failed: false })))
-  }, [photos.join(',')])
-
-  const handleScroll = () => {
-    if (!scrollRef.current) return
-    setActiveIdx(Math.round(scrollRef.current.scrollLeft / scrollRef.current.clientWidth))
-  }
-
-  return (
-    <div className="fixed top-0 left-0 right-0 bottom-0 z-[60] bg-black/95 flex flex-col animate-in fade-in duration-200" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-      <button onClick={onClose} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-[#1A1A1A]/80 flex items-center justify-center z-20 nav-press">
-        <X className="w-5 h-5 text-white" />
-      </button>
-
-      <div className="flex-1 flex items-center relative">
-        {photos.length > 0 ? (
-          <>
-            <div ref={scrollRef} onScroll={handleScroll} className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
-              {photos.map((photo, i) => (
-                <div key={i} className="w-full h-full flex-shrink-0 snap-center flex items-center justify-center relative">
-                  {!imgStates[i]?.failed && (
-                    <img
-                      src={photo}
-                      alt={`${user.name} ${i + 1}`}
-                      className={`max-w-full max-h-[65vh] object-contain transition-opacity duration-300 ${imgStates[i]?.loaded ? 'opacity-100' : 'opacity-0'}`}
-                      draggable={false}
-                      onLoad={() => setImgStates(prev => {
-                        const next = [...prev]
-                        next[i] = { ...next[i], loaded: true }
-                        return next
-                      })}
-                      onError={() => setImgStates(prev => {
-                        const next = [...prev]
-                        next[i] = { ...next[i], failed: true }
-                        return next
-                      })}
-                    />
-                  )}
-                  {(!imgStates[i]?.loaded || imgStates[i]?.failed) && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-32 h-32 rounded-full bg-[#1A1A1A] flex items-center justify-center">
-                        <span className="text-4xl font-bold text-[#8E8E93]">{user.name.charAt(0)}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-            {photos.length > 1 && (
-              <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-full">
-                <span className="text-white text-xs font-medium">{activeIdx + 1} / {photos.length}</span>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="w-full flex items-center justify-center">
-            <div className="w-32 h-32 rounded-full bg-[#1A1A1A] flex items-center justify-center">
-              <span className="text-4xl font-bold text-[#8E8E93]">{user.name.charAt(0)}</span>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {photos.length > 1 && (
-        <div className="flex justify-center gap-1.5 pb-3">
-          {photos.map((_, i) => <div key={i} className={`h-1.5 rounded-full transition-all duration-200 ${i === activeIdx ? 'w-4 bg-[#5AC8FA]' : 'w-1.5 bg-[#8E8E93]/40'}`} />)}
-        </div>
-      )}
-
-      <div className="w-full px-4 pb-4 pt-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-white font-bold text-lg">{user.age ? `${user.name}, ${user.age}` : user.name}</p>
-            <div className="flex items-center gap-2 mt-0.5">
-              <MapPin className="w-3.5 h-3.5 text-[#5AC8FA]" />
-              <span className="text-[#8E8E93] text-xs">{formatDist(user.distance)}</span>
-              {isUserActive(user) && <span className="ml-2 px-1.5 py-0.5 bg-[#00D4AA]/20 text-[#00D4AA] text-[10px] font-bold rounded-full">{t(lang, 'online').toUpperCase()}</span>}
-            </div>
-          </div>
-          {!user.isOwn && ownProfile.seekingToday !== 'Just Browsing' && user.seekingToday !== 'Just Browsing' && (
-            <button onClick={() => onMessage(user)} className="h-10 gradient-btn rounded-xl text-white font-semibold text-sm nav-press flex items-center gap-2 px-5">
-              <MessageCircle className="w-4 h-4" />
-              {user.openToMessages ? '⭐ ' + t(lang, 'message') : t(lang, 'message')}
-            </button>
-          )}
-        </div>
-        <div className="flex gap-3 mt-3 text-xs">
-          <span className="text-[#8E8E93]">{user.height}cm</span>
-          <span className="text-[#8E8E93]">{user.weight}kg</span>
-          <span className={`font-bold ${user.gender === 'Male' ? 'text-blue-400' : 'text-pink-400'}`}>{user.gender}</span>
-          <span className="text-[#8E8E93]">→ {user.seekingGender}</span>
-          {user.dob && <span className="text-purple-400 font-bold">{getZodiacEmoji(getZodiac(user.dob))} {getZodiac(user.dob)}</span>}
-          {user.seekingToday && <span className="text-green-400 font-bold">{user.seekingToday}</span>}
-          {user.meetupType && <span className="text-cyan-400 font-bold">{user.meetupType}</span>}
-          {user.openToMessages && <span className="font-bold text-yellow-400">⭐ {t(lang, 'message')}</span>}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─── Location Gate ────────────────────────────────────────────────────
+// ─── Profile View (see dating-ui/ProfileView.tsx) ────────────────────
 
 function LocationGate({ onGranted, lang }: { onGranted: (lat: number, lng: number) => void; lang: Lang }) {
   const [status, setStatus] = useState<'checking' | 'needed' | 'requesting' | 'denied'>('checking')
@@ -583,245 +474,7 @@ function MainScreen({ ownProfile, users, onViewOwnProfile, onViewPhoto, showDbWa
 
 // ─── Own Profile Screen with SAVE button ──────────────────────────────
 
-function OwnProfileScreen({ profile, onSave, onBack, lang, editProfileUnlocked }: {
-  profile: UserProfile
-  onSave: (updated: UserProfile) => void
-  onBack: () => void
-  lang: Lang
-  editProfileUnlocked: boolean
-}) {
-  const [draft, setDraft] = useState<UserProfile>({ ...profile })
-  const [saved, setSaved] = useState(false)
-  const [photoIndex, setPhotoIndex] = useState(0)
-  const [photoLoaded, setPhotoLoaded] = useState(false)
-
-  useEffect(() => { setDraft({ ...profile }) }, [profile.id])
-
-  // Sync photo updates from profile without resetting entire draft
-  useEffect(() => {
-    setDraft(prev => ({ ...prev, tgPhotoUrl: profile.tgPhotoUrl, tgPhotos: profile.tgPhotos }))
-  }, [profile.tgPhotoUrl, profile.tgPhotos])
-
-  useEffect(() => {
-    setPhotoLoaded(false)
-    setPhotoIndex(0)
-  }, [draft.tgPhotoUrl])
-
-  const updateDraft = (field: keyof UserProfile, value: unknown) => {
-    setDraft(prev => ({ ...prev, [field]: value }))
-    setSaved(false)
-  }
-
-  // Profile is considered "saved" when DOB, height, and weight are all set
-  const hasSavedProfile = !!profile.dob && profile.height > 0 && profile.weight > 0
-
-  // Helper to render a field label with lock indicator
-  const FieldLabel = ({ label, locked }: { label: string, locked?: boolean }) => (
-    <span className="text-xs text-[#8E8E93] font-medium uppercase block mb-1.5 flex items-center gap-1">
-      {label}
-      {locked && <Lock className="w-3 h-3 text-[#5AC8FA]" />}
-    </span>
-  )
-
-  const handleSave = async () => {
-    if (!draft.height || draft.height <= 0 || !draft.weight || draft.weight <= 0) {
-      alert('Please enter height and weight')
-      return
-    }
-    if (!draft.dob) {
-      alert('Please enter date of birth')
-      return
-    }
-
-    // Build confirmation message
-    const changes: string[] = []
-    if (draft.gender !== profile.gender) changes.push('Gender: ' + draft.gender)
-    if (draft.seekingGender !== profile.seekingGender) changes.push('Seeking: ' + draft.seekingGender)
-    if (draft.dob !== profile.dob) changes.push('Date of Birth: ' + draft.dob)
-    if (draft.height !== profile.height) changes.push('Height: ' + draft.height + 'cm')
-    if (draft.weight !== profile.weight) changes.push('Weight: ' + draft.weight + 'kg')
-    if (draft.hideAge !== profile.hideAge) changes.push('Hide Age: ' + (draft.hideAge ? 'On' : 'Off'))
-    if (draft.seekingToday !== profile.seekingToday) changes.push('Seeking Today: ' + draft.seekingToday)
-
-    const hasPermanent = changes.some(c => !c.startsWith('Seeking Today:'))
-    const justBrowsingWarning = draft.seekingToday === 'Just Browsing' ? '\n\n⚠️ Just Browsing: You will NOT be able to send or receive messages while in this status.' : ''
-    if (changes.length > 0) {
-      const msg = changes.join('\\n') + '\\n\\n' + (hasPermanent ? '⚠️ Personal info is PERMANENT and cannot be changed later.\\n\\n' : '') + justBrowsingWarning + 'Save these changes?'
-      if (!window.confirm(msg)) return
-    } else {
-      onBack()
-      return
-    }
-
-    // 12-hour cooldown for seekingToday
-    if (draft.seekingToday !== profile.seekingToday) {
-      const lastStr = await storage.get(CLOUD.seekingTodayChangedAt)
-      const lastTs = lastStr ? parseInt(lastStr) : 0
-      const hoursSince = (Date.now() - lastTs) / (1000 * 60 * 60)
-      if (lastTs > 0 && hoursSince < 12) {
-        const minsLeft = Math.ceil((12 * 60 * 60 * 1000 - (Date.now() - lastTs)) / (1000 * 60))
-        alert('Seeking Today can only be changed every 12 hours. ' + Math.floor(minsLeft / 60) + 'h ' + (minsLeft % 60) + 'm remaining.')
-        return
-      }
-      await storage.set(CLOUD.seekingTodayChangedAt, String(Date.now()))
-    }
-
-    await storage.set(CLOUD.dob, draft.dob || '')
-    await storage.set(CLOUD.height, String(draft.height))
-    await storage.set(CLOUD.weight, String(draft.weight))
-    await storage.set(CLOUD.pref1, draft.gender || 'Male')
-    await storage.set(CLOUD.pref2, draft.seekingGender || 'Women')
-    await storage.set(CLOUD.pref3, draft.seekingToday || 'Just Browsing')
-    await storage.set(CLOUD.hideAge, String(!!draft.hideAge))
-    onSave(draft)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
-  }
-
-  const photoList = draft.tgPhotos?.length ? draft.tgPhotos : (draft.tgPhotoUrl?.trim()?.startsWith('http') ? [draft.tgPhotoUrl] : [logoImg])
-  const currentPhoto = photoList[photoIndex % photoList.length]
-  const hasMultiplePhotos = photoList.length > 1
-  const isValidPhoto = currentPhoto?.toString().startsWith('http') || currentPhoto === logoImg
-
-  return (
-    <div className="view-enter h-full flex flex-col">
-      <div className="shrink-0 bg-[#0A0A0A]/95 backdrop-blur-md border-b border-[#2C2C2E] px-3 py-2.5 flex items-center justify-between z-10">
-        <button onClick={onBack} className="w-8 h-8 rounded-full bg-[#1A1A1A] flex items-center justify-center nav-press">
-          <ArrowLeft className="w-4 h-4 text-white" />
-        </button>
-        <h2 className="text-base font-semibold text-white">{t(lang, 'editProfile')}</h2>
-        <div className="w-8" />
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-3 pt-3 pb-4">
-        {/* Photo + Name */}
-        <div className="flex gap-3 mb-3">
-          <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-b from-[#2C2C2E] to-[#1A1A1A]">
-            <div className="absolute inset-0 flex items-center justify-center z-0">
-              <span className="text-2xl font-bold text-[#8E8E93]">{draft.name.charAt(0)}</span>
-            </div>
-            {isValidPhoto && (
-              <img
-                src={currentPhoto} alt="You"
-                className={`absolute inset-0 w-full h-full object-cover z-10 ${photoLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300 active:opacity-70`}
-                draggable={false} loading="eager" decoding="async"
-                onLoad={() => setPhotoLoaded(true)} onError={() => setPhotoLoaded(false)}
-                onClick={() => hasMultiplePhotos && setPhotoIndex((prev) => (prev + 1) % photoList.length)}
-              />
-            )}
-            {hasMultiplePhotos && (
-              <div className="absolute top-0.5 right-0.5 bg-black/60 rounded-full px-1 py-0 z-20">
-                <span className="text-white text-[8px] font-bold">{photoIndex + 1}/{photos.length}</span>
-              </div>
-            )}
-            <div className="absolute bottom-0 left-0 right-0 bg-[#0088CC]/70 text-center py-0.5 z-20">
-              <span className="text-white text-[7px] font-bold uppercase">TG</span>
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col justify-center gap-1">
-            <span className="text-white font-bold text-base">{draft.name}</span>
-            <div className="flex items-center gap-2 text-xs text-[#8E8E93]">
-              <span>{draft.height}cm</span><span className="text-[#2C2C2E]">|</span><span>{draft.weight}kg</span>
-            </div>
-            {draft.dob && (
-              <span className="text-purple-400 text-xs font-bold">
-                {getZodiacEmoji(getZodiac(draft.dob))} {getZodiac(draft.dob)} · {new Date().getFullYear() - new Date(draft.dob).getFullYear()}yo
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="h-px bg-[#2C2C2E] mb-3" />
-
-        {/* Gender */}
-        <div className={`mb-3 ${hasSavedProfile ? 'opacity-60' : ''}`}>
-          <FieldLabel label="Gender" locked={hasSavedProfile} />
-          <div className="flex gap-2">
-            <button disabled={hasSavedProfile} onClick={() => updateDraft('gender', 'Male')} className={`flex-1 h-10 rounded-lg text-xs font-bold transition-all nav-press ${draft.gender === 'Male' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-[#1A1A1A] text-[#8E8E93] border border-[#2C2C2E]'} ${hasSavedProfile ? 'cursor-not-allowed' : ''}`}>Male</button>
-            <button disabled={hasSavedProfile} onClick={() => updateDraft('gender', 'Female')} className={`flex-1 h-10 rounded-lg text-xs font-bold transition-all nav-press ${draft.gender === 'Female' ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30' : 'bg-[#1A1A1A] text-[#8E8E93] border border-[#2C2C2E]'} ${hasSavedProfile ? 'cursor-not-allowed' : ''}`}>Female</button>
-          </div>
-        </div>
-
-        {/* Seeking Gender */}
-        <div className={`mb-3 ${hasSavedProfile ? 'opacity-60' : ''}`}>
-          <FieldLabel label="Seeking" locked={hasSavedProfile} />
-          <div className="flex gap-2">
-            {(['Men','Women','Both'] as const).map(g => (
-              <button key={g} disabled={hasSavedProfile} onClick={() => updateDraft('seekingGender', g)} className={`flex-1 h-10 rounded-lg text-xs font-bold transition-all nav-press ${draft.seekingGender === g ? 'gradient-btn text-white' : 'bg-[#1A1A1A] text-[#8E8E93] border border-[#2C2C2E]'} ${hasSavedProfile ? 'cursor-not-allowed' : ''}`}>
-                {g}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Date of Birth + Hide Age */}
-        <div className={`mb-3 ${hasSavedProfile ? 'opacity-60' : ''}`}>
-          <FieldLabel label="Date of Birth" locked={hasSavedProfile} />
-          <input
-            type="date"
-            value={draft.dob || ''}
-            readOnly={hasSavedProfile}
-            onChange={(e) => !hasSavedProfile && updateDraft('dob', e.target.value)}
-            className={`w-full h-10 px-3 bg-[#1A1A1A] rounded-lg text-white text-sm outline-none border border-[#2C2C2E] focus:border-[#5AC8FA]/50 ${hasSavedProfile ? 'cursor-not-allowed' : ''}`}
-          />
-          <label className="flex items-center gap-2 cursor-pointer mt-2">
-            <input type="checkbox" checked={!!draft.hideAge}
-              onChange={(e) => updateDraft('hideAge', e.target.checked)}
-              className="w-4 h-4 accent-[#5AC8FA]"
-            />
-            <span className="text-sm text-white">🙈 Hide my age on profile</span>
-          </label>
-        </div>
-
-        {/* Height & Weight */}
-        <div className={`mb-3 ${hasSavedProfile ? 'opacity-60' : ''}`}>
-          <FieldLabel label="Height / Weight" locked={hasSavedProfile} />
-          <div className="flex gap-2">
-            <div className="flex-1 flex items-center justify-between px-3 py-2.5 bg-[#1A1A1A] rounded-lg">
-              <span className="text-xs text-[#8E8E93] font-medium uppercase">Height</span>
-              <input type="number" value={draft.height || ''} placeholder="0"
-                readOnly={hasSavedProfile}
-                onChange={(e) => !hasSavedProfile && updateDraft('height', parseInt(e.target.value) || 0)}
-                className={`bg-transparent text-white text-sm font-medium text-right outline-none w-16 ${hasSavedProfile ? 'cursor-not-allowed' : ''}`} />
-            </div>
-            <div className="flex-1 flex items-center justify-between px-3 py-2.5 bg-[#1A1A1A] rounded-lg">
-              <span className="text-xs text-[#8E8E93] font-medium uppercase">Weight</span>
-              <input type="number" value={draft.weight || ''} placeholder="0"
-                readOnly={hasSavedProfile}
-                onChange={(e) => !hasSavedProfile && updateDraft('weight', parseInt(e.target.value) || 0)}
-                className={`bg-transparent text-white text-sm font-medium text-right outline-none w-16 ${hasSavedProfile ? 'cursor-not-allowed' : ''}`} />
-            </div>
-          </div>
-        </div>
-
-        {/* Seeking Today — dropdown, 12h cooldown */}
-        <div className="mb-3">
-          <span className="text-xs text-[#8E8E93] font-medium uppercase block mb-1.5">Seeking Today</span>
-          <select
-            value={draft.seekingToday || 'Just Browsing'}
-            onChange={(e) => updateDraft('seekingToday', e.target.value)}
-            className="w-full h-10 px-3 bg-[#1A1A1A] rounded-lg text-white text-sm outline-none border border-[#2C2C2E] focus:border-[#5AC8FA]/50 appearance-none"
-          >
-            {['Just Browsing', 'Chat Only', 'Video Call', 'Meet Up'].map(s => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-          <p className="text-[10px] text-[#8E8E93] mt-1">Can only be changed every 12 hours</p>
-        </div>
-      </div>
-
-      {/* Save Bar */}
-      <div className="shrink-0 bg-[#0A0A0A]/95 backdrop-blur-xl border-t border-[#2C2C2E] px-3 pt-3 pb-5 z-20">
-        {saved && (
-          <div className="text-center text-[#00D4AA] text-xs font-semibold mb-2 animate-pulse">Saved!</div>
-        )}
-        <button onClick={handleSave} className="w-full h-14 gradient-btn rounded-xl text-white font-bold text-lg nav-press flex items-center justify-center gap-2">
-          <Check className="w-6 h-6" />Save Profile
-        </button>
-      </div>
-    </div>
-  )
-}
+// ─── Profile View (see dating-ui/ProfileView.tsx) ────────────────────
 
 // ─── Flying Messages Overlay ─────────────────────────────────────────
 
@@ -1727,16 +1380,24 @@ export default function App() {
             isPremium={isPremium}
           />
         ) : (
-          <OwnProfileScreen
-            profile={ownProfile}
+          <ProfileView
+            user={ownProfile}
+            lang={lang}
+            logoUrl={logoImg}
             onSave={handleSaveProfile}
             onBack={() => setView('MAIN')}
-            lang={lang}
             editProfileUnlocked={isAdmin || editProfileUnlocked}
           />
         )}
         {photoOverlay && (
-          <PhotoOverlay user={photoOverlay} onClose={() => setPhotoOverlay(null)} onMessage={handleMessage} lang={lang} ownProfile={ownProfile} />
+          <ProfileView
+            user={photoOverlay}
+            lang={lang}
+            logoUrl={logoImg}
+            onClose={() => setPhotoOverlay(null)}
+            onMessage={handleMessage}
+            ownProfile={ownProfile}
+          />
         )}
         {/* Admin popup — Release own lock only */}
         {adminAction === 'release' && (
