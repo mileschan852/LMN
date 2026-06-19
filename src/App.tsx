@@ -446,20 +446,7 @@ function MainScreen({ ownProfile, users, onViewOwnProfile, onViewPhoto, showDbWa
   return (
     <div className="flex-1 overflow-y-auto min-h-0 pb-20">
       <TopBar
-        logo={
-          ownProfile.tgPhotoUrl?.trim()?.startsWith('http') ? (
-            <img
-              src={ownProfile.tgPhotoUrl}
-              alt={ownProfile.name || 'LMN'}
-              className="w-8 h-8 rounded-full object-cover"
-              onError={(e) => { (e.target as HTMLImageElement).src = logoImg }}
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-              <img src={logoImg} alt="LMN" className="w-full h-full object-cover" />
-            </div>
-          )
-        }
+        logo={<img src={logoImg} alt="LMN" className="w-8 h-8 rounded-full object-cover" />}
         appName="LMN"
         raffle={raffle}
         isAdmin={isAdmin}
