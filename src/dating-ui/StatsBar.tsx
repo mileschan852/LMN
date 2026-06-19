@@ -29,11 +29,11 @@ export function StatsBar({
 
   return (
     <div className="px-3 pt-1 flex items-center gap-2 text-[10px] text-[#8E8E93]">
-      <span className="text-[#5AC8FA] font-bold whitespace-nowrap flex-shrink-0">
+      <span className="text-[var(--app-primary)] font-bold whitespace-nowrap flex-shrink-0">
         {rowsLabel}: {totalRows}
       </span>
       <span className="text-[#2C2C2E]">|</span>
-      <span className="text-[#5AC8FA] whitespace-nowrap">{version}</span>
+      <span className="text-[var(--app-primary)] whitespace-nowrap">{version}</span>
       {children && (
         <>
           <span className="text-[#2C2C2E]">|</span>
