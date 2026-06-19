@@ -1,5 +1,5 @@
 import {
-  getTg, isInTelegram, getUserId, getTimeAgo, getDistance, formatDist, isUserActive, isPrefLocked, getDefaultLang, isAdminUser, detectRealPhoto, checkPhotoGate, dbToProfile, formatRole, getGridRoleLabel, getFilterColor, createCloudKeys, createStorage, getZodiac, getZodiacEmoji, useRaffleActions,
+  getTg, isInTelegram, getUserId, getTimeAgo, getDistance, formatDist, isUserActive, isPrefLocked, getDefaultLang, isAdminUser, dbToProfile, formatRole, getGridRoleLabel, getFilterColor, createCloudKeys, createStorage, getZodiac, getZodiacEmoji, useRaffleActions,
   type UserProfile, type RoleFilterMode, type DbUser, type Raffle,
 } from 'dating-core'
 import { RaffleStatusDisplay, RaffleButton, BottomNav, StatsBar, ProfileGrid, TopBar } from 'dating-ui'
@@ -1179,17 +1179,8 @@ export default function App() {
         if (photoUrl) {
           storage.set(CLOUD.photoUrl, photoUrl)
         }
-        // Photo gate: check if user has a real photo on every login
-        const uid = tgUserId.current
-        if (uid) {
-          checkPhotoGate('lmn_users', uid, photoUrl).then(({ hasRealPhoto }) => {
-            setOwnProfile(prev => ({ ...prev, hasRealPhoto }))
-          })
-        }
-        // Legacy: also run detectRealPhoto for hasRealPhoto UI state
-        detectRealPhoto(photoUrl).then(isReal => {
-          setOwnProfile(prev => ({ ...prev, hasRealPhoto: isReal }))
-        })
+        // User has a real photo if Telegram provided a photo URL
+        setOwnProfile(prev => ({ ...prev, hasRealPhoto: !!photoUrl }))
         if (user.first_name) {
           storage.set(CLOUD.name, user.first_name)
         }
@@ -1529,25 +1520,6 @@ export default function App() {
       return
     }
 
-    // Profile picture gate: target has real photo, current user doesn't
-    if (user.hasRealPhoto && ownProfile.hasRealPhoto !== true) {
-      const tg = getTg()
-      const title = lang === 'tc' ? '需要個人頭像' : lang === 'sc' ? '需要个人头像' : lang === 'ru' ? 'Требуется фото' : 'Profile Picture Required'
-      const msg = lang === 'tc'
-        ? '你需要上傳真實個人頭像才能向此人發送訊息。如果剛剛上傳，請等待幾分鐘後重新啟動應用。'
-        : lang === 'sc'
-        ? '你需要上传真实个人头像才能向此人发送消息。如果刚刚上传，请等待几分钟后重新启动应用。'
-        : lang === 'ru'
-        ? 'Вам нужно загрузить реальное фото профиля, чтобы отправить сообщение. Если вы только что загрузили, подождите несколько минут и перезапустите приложение.'
-        : 'You require a real profile picture to send this person a message. If you just uploaded one to your Telegram profile, wait a few minutes then restart the app and try again.'
-      if (tg?.showPopup) {
-        tg.showPopup({ title, message: msg, buttons: [{ type: 'ok', text: 'OK' }] })
-      } else {
-        alert(msg)
-      }
-      return
-    }
-
     // Stars gate: user requires payment first
     if (user.openToMessages && !starsPaidFor.has(user.id)) {
       const tg = getTg()
@@ -1580,7 +1552,7 @@ export default function App() {
     if (tg?.openTelegramLink) { tg.openTelegramLink(tgUrl); return }
     if (tg?.openLink) { tg.openLink(tgUrl, { try_instant_view: false }); return }
     window.open(tgUrl, '_blank')
-  }, [starsPaidFor, ownProfile.hasRealPhoto, lang, ownProfile.seekingToday])
+  }, [starsPaidFor, lang, ownProfile.seekingToday])
 
   // ─── Render ───────────────────────────────────────────────────────
   // Splash screen
