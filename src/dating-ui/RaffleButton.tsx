@@ -1,5 +1,5 @@
-import { t, type Lang } from 'dating-core/i18n'
-import type { Raffle } from 'dating-core'
+import { t, type Lang } from '@dating/core/i18n'
+import type { Raffle } from '@dating/core'
 
 export function RaffleButton({
   raffle,

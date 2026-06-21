@@ -26,13 +26,13 @@ import { usePaymentUnlock } from './payments'
 // ─── Configuration ───────────────────────────────────────────────────
 
 export interface DatingAppConfig {
-  /** Storage prefix */
+  /** Storage prefix, e.g. 'hkmod' or 'lmn' */
   storagePrefix: string
   /** Supabase table name, e.g. 'users' or 'lmn_users' */
   tableName: string
   /** Cloudflare Worker URL for payments */
   workerUrl: string
-  /** Telegram channel URL for follow-to-unlock */
+  /** Telegram channel URL for follow-to-unlock (e.g. 'https://t.me/HKMO_D') */
   channelUrl: string
   /** Admin Telegram user IDs */
   adminIds: number[]

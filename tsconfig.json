@@ -18,10 +18,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "dating-core": ["./src/dating-core/index.ts"],
-      "dating-core/*": ["./src/dating-core/*"],
-      "dating-ui": ["./src/dating-ui/index.ts"],
-      "dating-ui/*": ["./src/dating-ui/*"]
+      "@dating/core": ["./src/dating-core/index.ts"],
+      "@dating/ui": ["./src/dating-ui/index.ts"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "lib/**/*.ts"],

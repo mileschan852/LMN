@@ -1,8 +1,8 @@
 import { RefreshCw } from 'lucide-react'
 import { RaffleStatusDisplay } from './RaffleStatusDisplay'
 import { RaffleButton } from './RaffleButton'
-import type { Raffle } from 'dating-core'
-import type { Lang } from 'dating-core/i18n'
+import type { Raffle } from '@dating/core'
+import type { Lang } from '@dating/core/i18n'
 import { useMemo } from 'react'
 
 interface TopBarProps {

@@ -11,6 +11,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@dating/core': path.resolve(__dirname, './src/dating-core/index.ts'),
+      '@dating/ui': path.resolve(__dirname, './src/dating-ui/index.ts'),
     },
   },
   build: {

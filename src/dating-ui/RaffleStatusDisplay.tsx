@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { t, type Lang } from 'dating-core/i18n'
-import type { Raffle } from 'dating-core'
+import { t, type Lang } from '@dating/core/i18n'
+import type { Raffle } from '@dating/core'
 
 export function RaffleStatusDisplay({ raffle, lang }: { raffle: Raffle | null; lang: Lang }) {
   const [timeLeft, setTimeLeft] = useState(0)

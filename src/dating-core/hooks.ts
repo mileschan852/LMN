@@ -99,8 +99,8 @@ export function useRaffleActions({ tableName, workerUrl, isAdmin, raffle, setRaf
       })
       clearTimeout(timer)
       const data = await res.json()
-      if (data.ok && data.invoice_url && tg?.openInvoice) {
-        tg.openInvoice(data.invoice_url, async (status: string) => {
+      if (data.ok && data.result && tg?.openInvoice) {
+        tg.openInvoice(data.result, async (status: string) => {
           if (status === 'paid') {
             const ok = await buyRaffleTicket(raffle.id, userId)
             if (ok) {
@@ -345,4 +345,352 @@ export function useGridUsers({
   const sortedUsers = useMemo(() => [...filteredGrid, ...nonMatchingGrid], [filteredGrid, nonMatchingGrid])
 
   return { sortedUsers, filteredGrid, matchingIds, nonMatchingGrid, visibleGridUsers, allGridUsers, patchedOwnProfile }
+}
+
+// ─── Payment Prompt Helper ─────────────────────────────────────────
+
+export interface UsePaymentPromptOptions {
+  workerUrl: string
+  amount: number
+  purpose: string
+  onSuccess?: () => void
+}
+
+export function usePaymentPrompt({ workerUrl, amount, purpose, onSuccess }: UsePaymentPromptOptions) {
+  const promptPayment = useCallback(async () => {
+    const tg = getTg()
+    const userId = tg?.initDataUnsafe?.user?.id
+    if (!userId) return false
+    try {
+      const ctrl = new AbortController()
+      const timer = setTimeout(() => ctrl.abort(), 8000)
+      const res = await fetch(workerUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, amount, purpose }),
+        signal: ctrl.signal,
+      })
+      clearTimeout(timer)
+      const data = await res.json()
+      const invoiceUrl = data.invoice_url || data.result
+      if (data.ok && invoiceUrl && tg?.openInvoice) {
+        tg.openInvoice(invoiceUrl, async (status: string) => {
+          if (status === 'paid') {
+            onSuccess?.()
+          }
+        })
+        return true
+      }
+    } catch { /* Worker failed */ }
+    return false
+  }, [workerUrl, amount, purpose, onSuccess])
+
+  return { promptPayment }
+}
+
+// ─── Filter Unlock Hook ────────────────────────────────────────────
+
+export interface UseFilterUnlockOptions {
+  isAdmin: boolean
+  workerUrl: string
+  storageSet: (key: string, value: string) => void | Promise<void>
+  storageKeys: { unlocked: string; unlockedAt: string }
+  saveToDb?: (userId: number, unlocked: boolean, expiresAt: string | null) => Promise<void>
+}
+
+export function useFilterUnlock({ isAdmin, workerUrl, storageSet, storageKeys, saveToDb }: UseFilterUnlockOptions) {
+  const [filtersUnlocked, setFiltersUnlocked] = useState(false)
+  const [filtersUnlockedAt, setFiltersUnlockedAt] = useState<number | undefined>(undefined)
+
+  const unlockFilters = useCallback(async () => {
+    const tg = getTg()
+    const userId = tg?.initDataUnsafe?.user?.id
+    if (isAdmin) {
+      setFiltersUnlocked(true)
+      const now = Date.now()
+      setFiltersUnlockedAt(now)
+      const expiresAt = new Date(now + 30 * 86400000).toISOString()
+      await storageSet(storageKeys.unlocked, 'true')
+      await storageSet(storageKeys.unlockedAt, String(now))
+      if (userId && saveToDb) {
+        await saveToDb(userId, true, expiresAt)
+      }
+      return
+    }
+    if (!userId) return
+    try {
+      const ctrl = new AbortController()
+      const timer = setTimeout(() => ctrl.abort(), 8000)
+      const res = await fetch(workerUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, amount: 500, purpose: 'filters' }),
+        signal: ctrl.signal,
+      })
+      clearTimeout(timer)
+      const data = await res.json()
+      const invoiceUrl = data.invoice_url || data.result
+      if (data.ok && invoiceUrl && tg?.openInvoice) {
+        tg.openInvoice(invoiceUrl, async (status: string) => {
+          if (status === 'paid') {
+            setFiltersUnlocked(true)
+            const now = Date.now()
+            setFiltersUnlockedAt(now)
+            const expiresAt = new Date(now + 30 * 86400000).toISOString()
+            await storageSet(storageKeys.unlocked, 'true')
+            await storageSet(storageKeys.unlockedAt, String(now))
+            if (saveToDb) await saveToDb(userId, true, expiresAt)
+          }
+        })
+      }
+    } catch { /* Worker failed */ }
+  }, [isAdmin, workerUrl, storageSet, storageKeys, saveToDb])
+
+  return { filtersUnlocked, setFiltersUnlocked, unlockFilters, filtersUnlockedAt, setFiltersUnlockedAt }
+}
+
+// ─── Grid Unlock Hook ──────────────────────────────────────────────
+
+export interface UseGridUnlockOptions {
+  isAdmin: boolean
+  workerUrl: string
+  storageSet: (key: string, value: string) => void | Promise<void>
+  storageKeys: { rows: string; rowsAt: string }
+  saveToDb?: (userId: number, rows: number) => Promise<void>
+}
+
+export function useGridUnlock({ isAdmin, workerUrl, storageSet, storageKeys, saveToDb }: UseGridUnlockOptions) {
+  const [gridRowsUnlocked, setGridRowsUnlocked] = useState(0)
+
+  const unlockRow = useCallback(async () => {
+    const tg = getTg()
+    const userId = tg?.initDataUnsafe?.user?.id
+    if (isAdmin) {
+      const newRows = gridRowsUnlocked + 1
+      setGridRowsUnlocked(newRows)
+      await storageSet(storageKeys.rows, String(newRows))
+      await storageSet(storageKeys.rowsAt, String(Date.now()))
+      if (userId && saveToDb) await saveToDb(userId, newRows)
+      return
+    }
+    if (!userId) return
+    try {
+      const ctrl = new AbortController()
+      const timer = setTimeout(() => ctrl.abort(), 8000)
+      const res = await fetch(workerUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, amount: 1000, purpose: 'grid' }),
+        signal: ctrl.signal,
+      })
+      clearTimeout(timer)
+      const data = await res.json()
+      const invoiceUrl = data.invoice_url || data.result
+      if (data.ok && invoiceUrl && tg?.openInvoice) {
+        tg.openInvoice(invoiceUrl, async (status: string) => {
+          if (status === 'paid') {
+            const newRows = gridRowsUnlocked + 1
+            setGridRowsUnlocked(newRows)
+            await storageSet(storageKeys.rows, String(newRows))
+            await storageSet(storageKeys.rowsAt, String(Date.now()))
+            if (saveToDb) await saveToDb(userId, newRows)
+          }
+        })
+      }
+    } catch { /* Worker failed */ }
+  }, [isAdmin, workerUrl, storageSet, storageKeys, saveToDb, gridRowsUnlocked])
+
+  return { gridRowsUnlocked, setGridRowsUnlocked, unlockRow }
+}
+
+// ─── Invisible Mode Hook ───────────────────────────────────────────
+
+export interface UseInvisibleModeOptions {
+  isAdmin: boolean
+  workerUrl: string
+  storageSet: (key: string, value: string) => void | Promise<void>
+  storageGet?: (key: string) => Promise<string | null>
+  storageKey: string
+  updateDb: (userId: number, until: string | null) => Promise<void>
+}
+
+export function useInvisibleMode({ isAdmin, workerUrl, storageSet, storageGet, storageKey, updateDb }: UseInvisibleModeOptions) {
+  const [invisibleUntil, setInvisibleUntil] = useState<string | null>(null)
+  const [invisibleActive, setInvisibleActive] = useState(false)
+
+  const isInvisible = invisibleActive && (invisibleUntil ? new Date(invisibleUntil).getTime() > Date.now() : false)
+  const hasPurchasedInvisible = invisibleUntil !== null
+
+  const toggleInvisible = useCallback(async () => {
+    const tg = getTg()
+    const userId = tg?.initDataUnsafe?.user?.id
+    if (!userId) return
+
+    if (isAdmin) {
+      if (isInvisible) {
+        setInvisibleUntil(null)
+        setInvisibleActive(false)
+        await storageSet(storageKey, 'false')
+        await updateDb(userId, null)
+      } else {
+        const until = new Date(Date.now() + 30 * 86400000).toISOString()
+        setInvisibleUntil(until)
+        setInvisibleActive(true)
+        await storageSet(storageKey, 'true')
+        await updateDb(userId, until)
+      }
+      return
+    }
+
+    if (hasPurchasedInvisible) {
+      const newActive = !invisibleActive
+      setInvisibleActive(newActive)
+      await storageSet(storageKey, String(newActive))
+      return
+    }
+
+    // Not purchased - prompt payment
+    try {
+      const ctrl = new AbortController()
+      const timer = setTimeout(() => ctrl.abort(), 8000)
+      const res = await fetch(workerUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, amount: 2000, purpose: 'invisible' }),
+        signal: ctrl.signal,
+      })
+      clearTimeout(timer)
+      const data = await res.json()
+      const invoiceUrl = data.invoice_url || data.result
+      if (data.ok && invoiceUrl && tg?.openInvoice) {
+        tg.openInvoice(invoiceUrl, (status: string) => {
+          if (status === 'paid') {
+            const until = new Date(Date.now() + 30 * 86400000).toISOString()
+            setInvisibleUntil(until)
+            setInvisibleActive(true)
+            storageSet(storageKey, 'true')
+            updateDb(userId, until)
+          }
+        })
+      }
+    } catch { /* Worker failed */ }
+  }, [isAdmin, isInvisible, hasPurchasedInvisible, invisibleActive, workerUrl, storageSet, storageKey, updateDb])
+
+  const loadInvisibleState = useCallback(async (dbUntil: string | null) => {
+    if (!dbUntil) {
+      setInvisibleUntil(null)
+      setInvisibleActive(false)
+      return
+    }
+    const expired = new Date(dbUntil).getTime() < Date.now()
+    if (expired) {
+      setInvisibleUntil(null)
+      setInvisibleActive(false)
+      await storageSet(storageKey, 'false')
+    } else {
+      setInvisibleUntil(dbUntil)
+      const saved = storageGet ? await storageGet(storageKey) : 'true'
+      setInvisibleActive(saved === 'false' ? false : true)
+    }
+  }, [storageSet, storageGet, storageKey])
+
+  return { invisibleUntil, invisibleActive, isInvisible, hasPurchasedInvisible, toggleInvisible, loadInvisibleState, setInvisibleUntil, setInvisibleActive }
+}
+
+// ─── Profile Unlock Hook ───────────────────────────────────────────
+
+export interface UseProfileUnlockOptions {
+  isAdmin: boolean
+  workerUrl: string
+  storageSet: (key: string, value: string) => void | Promise<void>
+  lockKey: string
+}
+
+export function useProfileUnlock({ isAdmin, workerUrl, storageSet, lockKey }: UseProfileUnlockOptions) {
+  const [adminAction, setAdminAction] = useState<'release' | null>(null)
+
+  const promptUnlockProfile = useCallback(async () => {
+    if (isAdmin) {
+      setAdminAction('release')
+      return
+    }
+    const tg = getTg()
+    const userId = tg?.initDataUnsafe?.user?.id
+    if (!userId) return
+    try {
+      const ctrl = new AbortController()
+      const timer = setTimeout(() => ctrl.abort(), 8000)
+      const res = await fetch(workerUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, amount: 100, purpose: 'edit' }),
+        signal: ctrl.signal,
+      })
+      clearTimeout(timer)
+      const data = await res.json()
+      const invoiceUrl = data.invoice_url || data.result
+      if (data.ok && invoiceUrl && tg?.openInvoice) {
+        tg.openInvoice(invoiceUrl, async (status: string) => {
+          if (status === 'paid') {
+            await storageSet(lockKey, '0')
+            alert('Profile lock released! Refresh to apply.')
+            window.location.reload()
+          }
+        })
+      }
+    } catch { /* Worker failed */ }
+  }, [isAdmin, workerUrl, storageSet, lockKey])
+
+  const releaseLock = useCallback(async () => {
+    await storageSet(lockKey, '0')
+    alert('Your profile lock has been released! Refresh to apply.')
+    window.location.reload()
+    setAdminAction(null)
+  }, [storageSet, lockKey])
+
+  return { adminAction, setAdminAction, promptUnlockProfile, releaseLock }
+}
+
+// ─── Channel Follow Unlock Hook ────────────────────────────────────
+
+export interface UseChannelFollowOptions {
+  channelUrl: string
+  storageSet: (key: string, value: string) => void | Promise<void>
+  storageKey: string
+  openLink: (url: string) => void
+}
+
+export function useChannelFollow({ channelUrl, storageSet, storageKey, openLink }: UseChannelFollowOptions) {
+  const [channelFollowUnlock, setChannelFollowUnlock] = useState(0)
+
+  const claimChannelFollow = useCallback(async () => {
+    if (channelFollowUnlock) return
+    openLink(channelUrl)
+    setChannelFollowUnlock(1)
+    await storageSet(storageKey, '1')
+  }, [channelFollowUnlock, channelUrl, storageSet, storageKey, openLink])
+
+  return { channelFollowUnlock, setChannelFollowUnlock, claimChannelFollow }
+}
+
+// ─── Sync Unlock Status Hook ───────────────────────────────────────
+
+export interface UseSyncUnlockStatusOptions {
+  fetchStatus: (userId: number) => Promise<any>
+  storageSet: (key: string, value: string) => void | Promise<void>
+  onSync?: (status: any) => void
+}
+
+export function useSyncUnlockStatus({ fetchStatus, storageSet, onSync }: UseSyncUnlockStatusOptions) {
+  const sync = useCallback(async (userId: number) => {
+    try {
+      const status = await fetchStatus(userId)
+      if (!status) return
+      onSync?.(status)
+    } catch (err) {
+      console.error('Sync unlock status error:', err)
+    }
+  }, [fetchStatus, storageSet, onSync])
+
+  return { sync }
 }

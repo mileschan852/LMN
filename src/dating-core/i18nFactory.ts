@@ -2,8 +2,8 @@
 // Eliminates the boilerplate every app repeats for app-specific overrides.
 //
 // Before (every app):
-//   export type { Lang } from 'dating-core/i18n'
-//   export { getLangLabel } from 'dating-core/i18n'
+//   export type { Lang } from '../i18n'
+//   export { getLangLabel } from '../i18n'
 //   import { t as coreT, mergeDict, type Lang } from './i18n'
 //   const OVERRIDES = { en: { title: '...', ... }, tc: { ... } }
 //   export function t(lang: Lang, key: string): string { return coreT(lang, key, OVERRIDES) }
@@ -33,7 +33,7 @@ export function createAppT(
     return mergeDict(lang, overrides)
   }
 
-  // Default preference mapping
+  // Default preference mapping (HKMOD-style)
   const defaultPrefMap: Record<string, string> = {
     Safe: 'safe',
     Raw: 'raw',

@@ -1,7 +1,10 @@
-// Supabase REST Client for LMN
+// Shared Supabase REST Client for HKMOD & LMN
+// Supports both app schemas in the same users table
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://fngcjkclxxodjaiqkfkm.supabase.co'
-const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuZ2Nqa2NseHhvZGphaXFrZmttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5OTE4NzUsImV4cCI6MjA5MjU2Nzg3NX0.dpoNP8EO7iZCFP7dzjD33mCdiJ0gxl5lTl6-hPY0HH4'
+// ─── Supabase Config ─────────────────────────────────────────────────
+// Both HKMOD and LMN share the same Supabase instance
+const SUPABASE_URL = 'https://fngcjkclxxodjaiqkfkm.supabase.co'
+const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuZ2Nqa2NseHhvZGphaXFrZmttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5OTE4NzUsImV4cCI6MjA5MjU2Nzg3NX0.dpoNP8EO7iZCFP7dzjD33mCdiJ0gxl5lTl6-hPY0HH4'
 
 export const hasValidKey = ANON_KEY.startsWith('eyJ') && ANON_KEY.length > 50
 
@@ -26,7 +29,7 @@ export interface DbUser {
   is_online: boolean
   updated_at: string
   
-  // App fields
+  // HKMOD fields
   position: number | null
   is_side: boolean | null
   preference1: string | null
@@ -51,8 +54,6 @@ export interface DbUser {
   filters_unlocked: boolean | null
   filters_unlocked_expires_at: string | null
   profile_unlocked: boolean | null
-  has_real_photo: boolean | null
-  hide_age: boolean | null
 }
 
 export interface Raffle {
@@ -143,6 +144,8 @@ export interface UnlockStatus {
   edit_unlocked: boolean | null
   edit_unlocked_expires_at: string | null
   has_real_photo: boolean | null
+  unlock_count: number
+  hide_age_until: string | null
 }
 
 export async function fetchUserUnlockStatus(tableName: string, userId: number): Promise<UnlockStatus | null> {
@@ -392,10 +395,10 @@ export async function updateUnlockCount(_tableName: string, userId: number, delt
   }
 }
 
-export async function setUnlockCount(tableName: string, userId: number, value: number): Promise<boolean> {
+export async function setUnlockCount(_tableName: string, userId: number, value: number): Promise<boolean> {
   if (!hasValidKey) return false
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?id=eq.${userId}`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${userId}`, {
       method: 'PATCH',
       headers,
       body: JSON.stringify({ unlock_count: value }),
@@ -436,6 +439,7 @@ export async function updateHideAgeStatus(tableName: string, userId: number, unt
     return false
   }
 }
+
 
 export interface DbTopic {
   id: number
@@ -600,6 +604,7 @@ export interface SupabaseClient {
   fetchGlobalUnlock: () => Promise<number>
   setGlobalUnlock: (timestamp: number) => Promise<boolean>
   fetchUserUnlockStatus: (userId: number) => Promise<UnlockStatus | null>
+  updateUserRealPhoto: (userId: number, hasRealPhoto: boolean) => Promise<boolean>
   setGridRowsUnlocked: (userId: number, value: number) => Promise<boolean>
   setFiltersUnlocked: (userId: number, unlocked: boolean, expiresAt: string | null) => Promise<boolean>
   updateInvisibleStatus: (userId: number, until: string | null) => Promise<boolean>
@@ -622,7 +627,7 @@ export function createSupabaseClient(tableName: string): SupabaseClient {
     fetchGlobalUnlock: () => fetchGlobalUnlock(tableName),
     setGlobalUnlock: (timestamp) => setGlobalUnlock(timestamp),
     fetchUserUnlockStatus: (userId) => fetchUserUnlockStatus(tableName, userId),
-    updateRealPhotoStatus: (userId, hasRealPhoto) => updateRealPhotoStatus(tableName, userId, hasRealPhoto),
+    updateUserRealPhoto: (userId, hasRealPhoto) => updateRealPhotoStatus(tableName, userId, hasRealPhoto),
     setGridRowsUnlocked: (userId, value) => setGridRowsUnlocked(tableName, userId, value),
     setFiltersUnlocked: (userId, unlocked, expiresAt) => setFiltersUnlocked(tableName, userId, unlocked, expiresAt),
     updateInvisibleStatus: (userId, until) => updateInvisibleStatus(tableName, userId, until),
@@ -631,6 +636,7 @@ export function createSupabaseClient(tableName: string): SupabaseClient {
     setUnlockCount: (userId, value) => setUnlockCount(tableName, userId, value),
     relockUserFeatures: (userId) => relockUserFeatures(tableName, userId),
     ensureFilterUnlock: (userId) => ensureFilterUnlock(tableName, userId),
+    updateRealPhotoStatus: (userId, hasRealPhoto) => updateRealPhotoStatus(tableName, userId, hasRealPhoto),
     fetchUserPhotoStatus: (userId) => fetchUserPhotoStatus(tableName, userId),
   }
 }

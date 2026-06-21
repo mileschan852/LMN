@@ -15,7 +15,7 @@ export interface GridUser {
   distance: number
   openToMessages?: boolean
   // App-specific fields (passed through)
-  age: number
+  age?: number
   height: number
   weight: number
   dob?: string | null
@@ -87,8 +87,12 @@ function GridTile({
     }
   }, [photo])
 
-  const isActive = user.isOnline && user.updatedAt
-    ? Date.now() - new Date(user.updatedAt).getTime() < 60 * 60 * 1000
+  // Self always shows online dot. Others: visible if updated within 15 minutes.
+  const ONLINE_THRESHOLD_MS = 15 * 60 * 1000
+  const isActive = user.isOwn
+    ? true
+    : user.isOnline && user.updatedAt
+    ? Date.now() - new Date(user.updatedAt).getTime() < ONLINE_THRESHOLD_MS
     : false
 
   return (
@@ -215,7 +219,7 @@ export function ProfileGrid({
   return (
     <div className="grid grid-cols-5 gap-1.5">
       {/* UNLOCKED AREA: users first, then blanks to fill the row */}
-      {unlockedUsers.map((user) => {
+      {unlockedUsers.map((user, idx) => {
         const isBlank = !!(user as any).isBlank
 
         if (isBlank) {

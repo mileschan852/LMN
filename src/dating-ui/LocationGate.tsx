@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { MapPin } from 'lucide-react'
-import { t, type Lang } from 'dating-core/i18n'
-import { getTg } from 'dating-core/telegram'
+import { t, type Lang } from '@dating/core/i18n'
+import { getTg } from '@dating/core/telegram'
 
 export function LocationGate({ onGranted, lang }: { onGranted: (lat: number, lng: number) => void; lang: Lang }) {
   const [status, setStatus] = useState<'idle' | 'requesting' | 'denied' | 'error'>('idle')
@@ -39,12 +39,12 @@ export function LocationGate({ onGranted, lang }: { onGranted: (lat: number, lng
   return (
     <div className="flex flex-col items-center justify-center h-full min-h-0 bg-black text-white p-6">
       <div className="w-20 h-20 rounded-full bg-[#1C1C1E] flex items-center justify-center mb-4">
-        <MapPin className="w-10 h-10 text-[var(--app-primary)]" />
+        <MapPin className="w-10 h-10 text-[#FF6B35]" />
       </div>
       <h2 className="text-xl font-bold mb-2">{t(lang, 'locationRequired')}</h2>
       <p className="text-center text-[#8E8E93] mb-6 text-sm">{t(lang, 'locationDesc')}</p>
       {status === 'requesting' && (
-        <p className="text-[var(--app-primary)] mb-4">{t(lang, 'checkingLoc')}</p>
+        <p className="text-[#FF6B35] mb-4">{t(lang, 'checkingLoc')}</p>
       )}
       {status === 'denied' && (
         <div className="text-center mb-4">
@@ -53,7 +53,7 @@ export function LocationGate({ onGranted, lang }: { onGranted: (lat: number, lng
           {errorMsg && <p className="text-red-500 text-xs mb-2">{errorMsg}</p>}
           <button
             onClick={handleRequest}
-            className="px-4 py-2 bg-[var(--app-primary)] text-white rounded-lg font-bold text-sm"
+            className="px-4 py-2 bg-[#FF6B35] text-white rounded-lg font-bold text-sm"
           >
             {t(lang, 'tapToRetry')}
           </button>
@@ -62,7 +62,7 @@ export function LocationGate({ onGranted, lang }: { onGranted: (lat: number, lng
       {status !== 'denied' && (
         <button
           onClick={handleRequest}
-          className="px-6 py-3 bg-[var(--app-primary)] text-white rounded-full font-bold"
+          className="px-6 py-3 bg-[#FF6B35] text-white rounded-full font-bold"
         >
           {t(lang, 'tapToRetry')}
         </button>

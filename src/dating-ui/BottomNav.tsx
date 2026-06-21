@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Send, Grid3X3, Users, Gift, Wallet } from 'lucide-react'
-import { t, type Lang } from 'dating-core/i18n'
+import { t, type Lang } from '@dating/core/i18n'
 
 interface BottomNavProps {
   lang: Lang
@@ -22,11 +22,23 @@ export function BottomNav({
   const [inputText, setInputText] = useState('')
 
   const openLink = (url: string) => {
+    console.log('[BottomNav] openLink:', url)
     try {
       const tg = (window as any).Telegram?.WebApp
-      if (tg?.openTelegramLink) { tg.openTelegramLink(url); return }
-      if (tg?.openLink) { tg.openLink(url, { try_instant_view: false }); return }
-    } catch {}
+      if (tg?.openTelegramLink) {
+        tg.openTelegramLink(url)
+        console.log('[BottomNav] used openTelegramLink')
+        return
+      }
+      if (tg?.openLink) {
+        tg.openLink(url, { try_instant_view: false })
+        console.log('[BottomNav] used openLink')
+        return
+      }
+    } catch (e) {
+      console.log('[BottomNav] tg link failed:', e)
+    }
+    console.log('[BottomNav] falling back to window.open')
     window.open(url, '_blank')
   }
 
@@ -39,7 +51,22 @@ export function BottomNav({
   }
 
   const handleWallet = () => {
-    if (walletUrl) openLink(walletUrl)
+    if (!walletUrl) return
+    // Try to open Telegram Wallet directly via Mini App API
+    try {
+      const tg = (window as any).Telegram?.WebApp
+      if (tg?.openTelegramLink) {
+        tg.openTelegramLink(walletUrl)
+        return
+      }
+      if (tg?.openLink) {
+        tg.openLink(walletUrl, { try_instant_view: false })
+        return
+      }
+    } catch (e) {
+      console.log('[BottomNav] wallet open failed:', e)
+    }
+    window.open(walletUrl, '_blank')
   }
 
   const handleSend = () => {
@@ -59,30 +86,30 @@ export function BottomNav({
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder={t(lang, 'message')}
-            className="flex-1 h-9 px-3 rounded-full bg-[#1A1A1A] border border-[#2C2C2E] text-sm text-white placeholder-[#8E8E93] focus:outline-none focus:border-[var(--app-primary)]/50"
+            className="flex-1 h-9 px-3 rounded-full bg-[#1A1A1A] border border-[#2C2C2E] text-sm text-white placeholder-[#8E8E93] focus:outline-none focus:border-[#FF6B35]/50"
           />
           <button
             onClick={handleSend}
             disabled={!inputText.trim() || cooldownRemaining > 0}
-            className="w-9 h-9 rounded-full bg-[var(--app-primary)] flex items-center justify-center nav-press disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-9 h-9 rounded-full bg-[#FF6B35] flex items-center justify-center nav-press disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <Send className="w-4 h-4 text-white" />
           </button>
         </div>
         <nav className="h-14 flex items-center justify-around">
-          <button className="nav-press flex flex-col items-center gap-0.5 min-w-[50px] text-[var(--app-primary)]">
+          <button className="nav-press flex flex-col items-center gap-0.5 min-w-[50px] text-[#FF6B35]">
             <Grid3X3 className="w-5 h-5" />
             <span className="text-[9px] font-medium">{t(lang, 'profiles')}</span>
           </button>
-          <button onClick={handleGroupChat} className="nav-press flex flex-col items-center gap-0.5 min-w-[50px] text-[var(--app-primary)]">
+          <button onClick={handleGroupChat} className="nav-press flex flex-col items-center gap-0.5 min-w-[50px] text-[#FF6B35]">
             <Users className="w-5 h-5" />
             <span className="text-[9px] font-medium">{t(lang, 'groupChat')}</span>
           </button>
-          <button onClick={handleRefer} className="nav-press flex flex-col items-center gap-0.5 min-w-[50px] text-[var(--app-primary)]">
+          <button onClick={handleRefer} className="nav-press flex flex-col items-center gap-0.5 min-w-[50px] text-[#FF6B35]">
             <Gift className="w-5 h-5" />
             <span className="text-[9px] font-medium">{t(lang, 'refer')}</span>
           </button>
-          <button onClick={handleWallet} className="nav-press flex flex-col items-center gap-0.5 min-w-[50px] text-[var(--app-primary)]">
+          <button onClick={handleWallet} className="nav-press flex flex-col items-center gap-0.5 min-w-[50px] text-[#FF6B35]">
             <Wallet className="w-5 h-5" />
             <span className="text-[9px] font-medium">{t(lang, 'wallet')}</span>
           </button>
