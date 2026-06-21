@@ -28,6 +28,8 @@ jobs:
         run: npm install
 
       - name: Build
+        env:
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
         run: npm run build
 
       - name: Setup Pages

@@ -5,22 +5,18 @@ import path from 'path'
 export default defineConfig({
   base: '/LMN/',
   plugins: [react()],
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.GITHUB_RUN_NUMBER || 'dev'),
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      'react': path.resolve(__dirname, './node_modules/react'),
-      'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
-      'react/jsx-runtime': path.resolve(__dirname, './node_modules/react/jsx-runtime'),
-      'react/jsx-dev-runtime': path.resolve(__dirname, './node_modules/react/jsx-dev-runtime'),
-      'lucide-react': path.resolve(__dirname, './node_modules/lucide-react'),
-      'dating-core': path.resolve(__dirname, './src/dating-core'),
-      'dating-ui': path.resolve(__dirname, './src/dating-ui'),
     },
   },
   build: {
     outDir: 'dist',
     sourcemap: true,
-    assetsInlineLimit: 0, // Don't inline any assets - always emit as files
+    assetsInlineLimit: 0,
   },
   server: {
     port: 3001,
