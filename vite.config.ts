@@ -9,11 +9,11 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(process.env.GITHUB_RUN_NUMBER || 'dev'),
   },
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@dating/core': path.resolve(__dirname, './src/dating-core/index.ts'),
-      '@dating/ui': path.resolve(__dirname, './src/dating-ui/index.ts'),
-    },
+    alias: [
+      { find: '@', replacement: path.resolve(__dirname, './src') },
+      { find: /^@dating\/core(\/.+)?$/, replacement: path.resolve(__dirname, './src/dating-core$1') },
+      { find: '@dating/ui', replacement: path.resolve(__dirname, './src/dating-ui/index.ts') },
+    ],
   },
   build: {
     outDir: 'dist',

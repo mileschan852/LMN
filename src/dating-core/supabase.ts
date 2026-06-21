@@ -54,6 +54,7 @@ export interface DbUser {
   filters_unlocked: boolean | null
   filters_unlocked_expires_at: string | null
   profile_unlocked: boolean | null
+  has_real_photo: boolean | null
 }
 
 export interface Raffle {

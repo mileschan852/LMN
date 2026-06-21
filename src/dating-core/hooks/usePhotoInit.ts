@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { getTg } from '../utils'
+import { getTg } from '../telegram'
 
 export interface PhotoInitResult {
   photoUrl: string

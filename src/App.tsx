@@ -434,7 +434,7 @@ export default function App() {
     workerUrl: WORKER_URL,
     storageSet: (k, v) => storage.set(k, v),
     storageKeys: { unlocked: CLOUD.filtersUnlocked, unlockedAt: CLOUD.filtersUnlockedAt },
-    saveToDb: (uid, unlocked, expires) => saveFiltersUnlocked(uid, unlocked, expires),
+    saveToDb: async (uid, unlocked, expires) => { await saveFiltersUnlocked(uid, unlocked, expires) },
   })
 
   const { gridRowsUnlocked, setGridRowsUnlocked, unlockRow } = useGridUnlock({
@@ -442,10 +442,10 @@ export default function App() {
     workerUrl: WORKER_URL,
     storageSet: (k, v) => storage.set(k, v),
     storageKeys: { rows: CLOUD.gridRowsUnlocked, rowsAt: CLOUD.gridRowsUnlockedAt },
-    saveToDb: (uid, rows) => saveGridRowsUnlocked(uid, rows),
+    saveToDb: async (uid, rows) => { await saveGridRowsUnlocked(uid, rows) },
   })
 
-  const { invisibleUntil, invisibleActive, isInvisible, hasPurchasedInvisible, toggleInvisible, loadInvisibleState } = useInvisibleMode({
+  const { invisibleUntil, isInvisible, hasPurchasedInvisible, toggleInvisible, loadInvisibleState } = useInvisibleMode({
     isAdmin,
     workerUrl: WORKER_URL,
     storageSet: (k, v) => storage.set(k, v),
