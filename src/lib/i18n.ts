@@ -1,9 +1,9 @@
 // LMN-specific i18n wrapper — uses shared createAppT from dating-core
 
-export type { Lang } from 'dating-core'
-export { getLangLabel } from 'dating-core'
+export type { Lang } from '@dating/core'
+export { getLangLabel } from '@dating/core'
 
-import { createAppT, type Lang } from 'dating-core'
+import { createAppT, type Lang } from '@dating/core'
 
 const LMN_OVERRIDES: Partial<Record<Lang, Record<string, string>>> = {
   en: {
