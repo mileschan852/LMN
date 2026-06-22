@@ -244,13 +244,13 @@ export function ProfileGrid({
             key={user.id}
             className="relative aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200"
             style={{
-              borderColor: user.id === ownProfile.id ? '#5AC8FA' : 'transparent',
+              borderColor: idx === 0 ? '#5AC8FA' : 'transparent',
               opacity: matchingIds && !matchingIds.has(user.id) ? 0.25 : 1,
             }}
           >
             <GridTile
               user={user}
-              onClick={() => (user.isOwn ? onViewOwnProfile() : onViewPhoto(user))}
+              onClick={() => (idx === 0 ? onViewOwnProfile() : onViewPhoto(user))}
               renderBottom={renderTileBottom}
               renderTopLeft={renderTileTopLeft}
               tileClassName={tileClassName}
